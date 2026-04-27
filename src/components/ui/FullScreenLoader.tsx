@@ -1,0 +1,9 @@
+export function FullScreenLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-bg-base">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-10 h-10 rounded-full border-2 border-border border-t-accent-primary animate-spin" />
+      </div>
+    </div>
+  );
+}

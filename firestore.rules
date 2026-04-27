@@ -1,0 +1,31 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function onlyToggleFields() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasOnly(['status', 'readAt']);
+    }
+
+    match /briefings/{date} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    match /rustTasks/{id} {
+      allow read: if isSignedIn();
+      allow update: if isSignedIn() && onlyToggleFields();
+      allow create, delete: if false;
+    }
+
+    match /rustReadings/{id} {
+      allow read: if isSignedIn();
+      allow update: if isSignedIn() && onlyToggleFields();
+      allow create, delete: if false;
+    }
+  }
+}

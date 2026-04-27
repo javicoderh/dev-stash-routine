@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-base: 245 244 238;
+  --bg-surface: 255 255 255;
+  --bg-alt: 239 237 228;
+  --border: 227 223 206;
+  --border-strong: 210 205 188;
+  --text-primary: 31 30 27;
+  --text-secondary: 92 90 82;
+  --text-muted: 139 136 120;
+  --accent-primary: 204 120 92;
+  --accent-rust: 160 82 45;
+  --accent-link: 62 95 138;
+  --status-read: 107 142 90;
+  --status-pending: 139 136 120;
+
+  color-scheme: light;
+}
+
+.dark {
+  --bg-base: 20 19 17;
+  --bg-surface: 28 27 25;
+  --bg-alt: 37 35 32;
+  --border: 52 49 44;
+  --border-strong: 74 70 63;
+  --text-primary: 232 228 218;
+  --text-secondary: 170 165 152;
+  --text-muted: 118 113 102;
+  --accent-primary: 217 136 105;
+  --accent-rust: 184 107 68;
+  --accent-link: 122 162 215;
+  --status-read: 131 163 112;
+  --status-pending: 139 136 120;
+
+  color-scheme: dark;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    @apply min-h-screen;
+  }
+
+  body {
+    @apply bg-bg-base text-text-primary font-sans;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent-primary ring-offset-2 ring-offset-bg-base;
+  }
+
+  ::selection {
+    @apply bg-accent-primary/30;
+  }
+}
+
+@layer components {
+  .prose-article {
+    @apply font-serif text-text-primary leading-relaxed;
+    font-size: 1.0625rem;
+  }
+
+  .prose-article h1,
+  .prose-article h2,
+  .prose-article h3 {
+    @apply font-display text-text-primary mt-8 mb-3;
+  }
+
+  .prose-article h1 { @apply text-3xl font-semibold; }
+  .prose-article h2 { @apply text-2xl font-semibold; }
+  .prose-article h3 { @apply text-xl font-medium; }
+
+  .prose-article p { @apply my-4; }
+
+  .prose-article a {
+    @apply text-accent-link underline underline-offset-4 decoration-accent-link/40
+           hover:decoration-accent-link transition-colors;
+  }
+
+  .prose-article ul,
+  .prose-article ol {
+    @apply my-4 pl-6;
+  }
+  .prose-article ul { @apply list-disc; }
+  .prose-article ol { @apply list-decimal; }
+  .prose-article li { @apply my-1.5; }
+
+  .prose-article blockquote {
+    @apply border-l-2 border-border-strong pl-4 italic text-text-secondary my-4;
+  }
+
+  .prose-article code {
+    @apply font-mono text-[0.9em] bg-bg-alt px-1.5 py-0.5 rounded;
+  }
+
+  .prose-article pre {
+    @apply my-5 rounded-xl overflow-x-auto;
+  }
+
+  .prose-article pre code {
+    @apply bg-transparent p-0 rounded-none;
+  }
+
+  .prose-article hr {
+    @apply my-8 border-border;
+  }
+
+  .prose-article strong { @apply font-semibold text-text-primary; }
+  .prose-article em { @apply italic; }
+
+  .mono-label {
+    @apply font-mono text-xs uppercase tracking-wider text-text-muted;
+  }
+}
