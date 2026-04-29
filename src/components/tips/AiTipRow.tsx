@@ -3,20 +3,22 @@ import type { AiTip } from '@/types/firestore';
 import { StatusToggle } from '@/components/ui/StatusToggle';
 import { AiTipCategoryBadge } from '@/components/ui/StatusBadge';
 import { useToggleStatus } from '@/hooks/useToggleStatus';
+import { useReadStatus } from '@/hooks/useReadStatus';
 import { formatDateShort } from '@/lib/dates';
 
 type Props = { tip: AiTip };
 
 export function AiTipRow({ tip }: Props) {
+  const status = useReadStatus('tip', tip.id);
   const { toggle } = useToggleStatus('tip');
 
   return (
     <li className="flex items-center gap-4 py-3 border-b border-border last:border-b-0">
       <StatusToggle
-        status={tip.status}
-        onToggle={() => toggle(tip.id, tip.status)}
+        status={status}
+        onToggle={() => toggle(tip.id)}
         size="md"
-        label={`${tip.status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${tip.title}`}
+        label={`${status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${tip.title}`}
       />
       <span className="font-mono text-xs text-text-muted w-16 tabular-nums">
         {formatDateShort(tip.date)}

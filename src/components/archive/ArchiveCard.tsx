@@ -6,6 +6,7 @@ import { pickFallback } from '@/lib/fallbackImages';
 import { StatusToggle } from '@/components/ui/StatusToggle';
 import { AgentTypeBadge, AiTipCategoryBadge, StatusBadge, FormatBadge } from '@/components/ui/StatusBadge';
 import { useToggleStatus } from '@/hooks/useToggleStatus';
+import { useReadStatus } from '@/hooks/useReadStatus';
 import { formatDateShort } from '@/lib/dates';
 
 function firstLines(md: string, n: number): string {
@@ -86,6 +87,7 @@ export function NewsArchiveCard({ item }: { item: FlatNewsItem }) {
 }
 
 export function RustTaskArchiveCard({ task }: { task: RustTask }) {
+  const status = useReadStatus('task', task.id);
   const { toggle } = useToggleStatus('task');
 
   return (
@@ -101,7 +103,7 @@ export function RustTaskArchiveCard({ task }: { task: RustTask }) {
             </span>
             <FormatBadge format={task.formatType} />
           </div>
-          <StatusBadge status={task.status} />
+          <StatusBadge status={status} />
         </div>
         <h3 className="font-display text-lg font-medium leading-snug text-text-primary
                        group-hover:text-accent-primary transition-colors">
@@ -113,13 +115,13 @@ export function RustTaskArchiveCard({ task }: { task: RustTask }) {
       </RouterLink>
       <div className="border-t border-border px-5 py-3 flex items-center gap-3">
         <StatusToggle
-          status={task.status}
-          onToggle={() => toggle(task.id, task.status)}
+          status={status}
+          onToggle={() => toggle(task.id)}
           size="sm"
-          label={`${task.status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${task.title}`}
+          label={`${status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${task.title}`}
         />
         <span className="text-xs text-text-secondary">
-          {task.status === 'read' ? 'Leído' : 'Pendiente'}
+          {status === 'read' ? 'Leído' : 'Pendiente'}
         </span>
       </div>
     </CardShell>
@@ -127,6 +129,7 @@ export function RustTaskArchiveCard({ task }: { task: RustTask }) {
 }
 
 export function AgentItemArchiveCard({ item }: { item: AgentItem }) {
+  const status = useReadStatus('agent', item.id);
   const { toggle } = useToggleStatus('agent');
 
   return (
@@ -145,7 +148,7 @@ export function AgentItemArchiveCard({ item }: { item: AgentItem }) {
             </span>
             <AgentTypeBadge type={item.type} />
           </div>
-          <StatusBadge status={item.status} />
+          <StatusBadge status={status} />
         </div>
         <h3 className="font-display text-lg font-medium leading-snug text-text-primary
                        group-hover:text-accent-primary transition-colors">
@@ -157,13 +160,13 @@ export function AgentItemArchiveCard({ item }: { item: AgentItem }) {
       </RouterLink>
       <div className="border-t border-border px-5 py-3 flex items-center gap-3">
         <StatusToggle
-          status={item.status}
-          onToggle={() => toggle(item.id, item.status)}
+          status={status}
+          onToggle={() => toggle(item.id)}
           size="sm"
-          label={`${item.status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${item.title}`}
+          label={`${status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${item.title}`}
         />
         <span className="text-xs text-text-secondary">
-          {item.status === 'read' ? 'Leído' : 'Pendiente'}
+          {status === 'read' ? 'Leído' : 'Pendiente'}
         </span>
       </div>
     </CardShell>
@@ -171,6 +174,7 @@ export function AgentItemArchiveCard({ item }: { item: AgentItem }) {
 }
 
 export function AiTipArchiveCard({ tip }: { tip: AiTip }) {
+  const status = useReadStatus('tip', tip.id);
   const { toggle } = useToggleStatus('tip');
 
   return (
@@ -189,7 +193,7 @@ export function AiTipArchiveCard({ tip }: { tip: AiTip }) {
               {tip.toolName}
             </span>
           </div>
-          <StatusBadge status={tip.status} />
+          <StatusBadge status={status} />
         </div>
         <h3 className="font-display text-lg font-medium leading-snug text-text-primary
                        group-hover:text-accent-primary transition-colors">
@@ -201,13 +205,13 @@ export function AiTipArchiveCard({ tip }: { tip: AiTip }) {
       </RouterLink>
       <div className="border-t border-border px-5 py-3 flex items-center gap-3">
         <StatusToggle
-          status={tip.status}
-          onToggle={() => toggle(tip.id, tip.status)}
+          status={status}
+          onToggle={() => toggle(tip.id)}
           size="sm"
-          label={`${tip.status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${tip.title}`}
+          label={`${status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${tip.title}`}
         />
         <span className="text-xs text-text-secondary">
-          {tip.status === 'read' ? 'Leído' : 'Pendiente'}
+          {status === 'read' ? 'Leído' : 'Pendiente'}
         </span>
       </div>
     </CardShell>
@@ -248,6 +252,7 @@ export function BusinessIdeaArchiveCard({ idea }: { idea: BusinessIdea }) {
 }
 
 export function RustReadingArchiveCard({ reading }: { reading: RustReading }) {
+  const status = useReadStatus('reading', reading.id);
   const { toggle } = useToggleStatus('reading');
 
   return (
@@ -260,7 +265,7 @@ export function RustReadingArchiveCard({ reading }: { reading: RustReading }) {
           <span className="font-mono text-[10px] text-text-muted">
             {formatDateShort(reading.date)}
           </span>
-          <StatusBadge status={reading.status} />
+          <StatusBadge status={status} />
         </div>
         <h3 className="font-display text-lg font-medium leading-snug text-text-primary
                        group-hover:text-accent-primary transition-colors">
@@ -272,13 +277,13 @@ export function RustReadingArchiveCard({ reading }: { reading: RustReading }) {
       </RouterLink>
       <div className="border-t border-border px-5 py-3 flex items-center gap-3">
         <StatusToggle
-          status={reading.status}
-          onToggle={() => toggle(reading.id, reading.status)}
+          status={status}
+          onToggle={() => toggle(reading.id)}
           size="sm"
-          label={`${reading.status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${reading.title}`}
+          label={`${status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${reading.title}`}
         />
         <span className="text-xs text-text-secondary">
-          {reading.status === 'read' ? 'Leído' : 'Pendiente'}
+          {status === 'read' ? 'Leído' : 'Pendiente'}
         </span>
       </div>
     </CardShell>

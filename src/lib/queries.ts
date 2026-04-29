@@ -6,15 +6,8 @@ import {
   limit as fsLimit,
   orderBy,
   query,
-  serverTimestamp,
-  updateDoc,
 } from 'firebase/firestore';
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-  type QueryKey,
-} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/firebase';
 import type {
   AgentItem,
@@ -22,7 +15,6 @@ import type {
   Briefing,
   BusinessIdea,
   FlatNewsItem,
-  ItemStatus,
   RustReading,
   RustTask,
 } from '@/types/firestore';
@@ -355,102 +347,3 @@ export function useAllAiTips() {
   });
 }
 
-type ToggleVars = { id: string; newStatus: ItemStatus };
-
-function buildToggle(collectionName: 'rustTasks' | 'rustReadings' | 'agentItems' | 'aiTips') {
-  return async ({ id, newStatus }: ToggleVars) => {
-    const ref = doc(db, collectionName, id);
-    await updateDoc(ref, {
-      status: newStatus,
-      readAt: newStatus === 'read' ? serverTimestamp() : null,
-    });
-  };
-}
-
-type ListQueryKey = QueryKey;
-
-function patchItemInList<T extends { id: string; status: ItemStatus; readAt: unknown }>(
-  prev: T[] | undefined,
-  id: string,
-  newStatus: ItemStatus,
-): T[] | undefined {
-  if (!prev) return prev;
-  return prev.map((item) =>
-    item.id === id
-      ? ({ ...item, status: newStatus, readAt: newStatus === 'read' ? item.readAt ?? null : null })
-      : item,
-  );
-}
-
-function useToggleMutation(
-  collectionName: 'rustTasks' | 'rustReadings' | 'agentItems' | 'aiTips',
-  listKeys: ListQueryKey[],
-  detailKey: (id: string) => ListQueryKey,
-) {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: buildToggle(collectionName),
-    onMutate: async ({ id, newStatus }) => {
-      await Promise.all(listKeys.map((k) => qc.cancelQueries({ queryKey: k })));
-      await qc.cancelQueries({ queryKey: detailKey(id) });
-
-      const snapshots: Array<{ key: ListQueryKey; value: unknown }> = [];
-      for (const k of listKeys) {
-        const value = qc.getQueryData(k);
-        snapshots.push({ key: k, value });
-        qc.setQueryData(k, (old: unknown) =>
-          patchItemInList(old as Array<{ id: string; status: ItemStatus; readAt: unknown }> | undefined, id, newStatus),
-        );
-      }
-      const detailSnapshot = qc.getQueryData(detailKey(id));
-      qc.setQueryData(detailKey(id), (old: unknown) => {
-        if (!old || typeof old !== 'object') return old;
-        return { ...(old as object), status: newStatus };
-      });
-
-      return { snapshots, detailSnapshot };
-    },
-    onError: (_err, vars, ctx) => {
-      if (!ctx) return;
-      for (const s of ctx.snapshots) qc.setQueryData(s.key, s.value);
-      qc.setQueryData(detailKey(vars.id), ctx.detailSnapshot);
-    },
-    onSettled: (_data, _err, vars) => {
-      for (const k of listKeys) qc.invalidateQueries({ queryKey: k });
-      qc.invalidateQueries({ queryKey: detailKey(vars.id) });
-    },
-  });
-}
-
-export function useToggleTaskStatus() {
-  return useToggleMutation(
-    'rustTasks',
-    [queryKeys.allRustTasks, queryKeys.recentRustTasks(7)],
-    queryKeys.rustTask,
-  );
-}
-
-export function useToggleReadingStatus() {
-  return useToggleMutation(
-    'rustReadings',
-    [queryKeys.allRustReadings, queryKeys.recentRustReadings(7)],
-    queryKeys.rustReading,
-  );
-}
-
-export function useToggleAgentItemStatus() {
-  return useToggleMutation(
-    'agentItems',
-    [queryKeys.allAgentItems, queryKeys.recentAgentItems(7)],
-    queryKeys.agentItem,
-  );
-}
-
-export function useToggleAiTipStatus() {
-  return useToggleMutation(
-    'aiTips',
-    [queryKeys.allAiTips, queryKeys.recentAiTips(7)],
-    queryKeys.aiTip,
-  );
-}

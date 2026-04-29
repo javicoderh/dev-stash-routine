@@ -1,40 +1,14 @@
 import { useCallback } from 'react';
-import {
-  useToggleAgentItemStatus,
-  useToggleAiTipStatus,
-  useToggleReadingStatus,
-  useToggleTaskStatus,
-} from '@/lib/queries';
-import { useToast } from '@/components/ui/Toast';
-import type { ItemStatus } from '@/types/firestore';
+import { readStore } from '@/lib/readStore';
+import { KIND_TO_TYPE, type ReadKind } from '@/hooks/useReadStatus';
 
-type Kind = 'task' | 'reading' | 'agent' | 'tip';
-
-export function useToggleStatus(kind: Kind) {
-  const taskMutation = useToggleTaskStatus();
-  const readingMutation = useToggleReadingStatus();
-  const agentMutation = useToggleAgentItemStatus();
-  const tipMutation = useToggleAiTipStatus();
-  const { showError } = useToast();
-
-  const mutation =
-    kind === 'task' ? taskMutation
-    : kind === 'reading' ? readingMutation
-    : kind === 'agent' ? agentMutation
-    : tipMutation;
-
+export function useToggleStatus(kind: ReadKind) {
   const toggle = useCallback(
-    (id: string, currentStatus: ItemStatus) => {
-      const next: ItemStatus = currentStatus === 'read' ? 'pending' : 'read';
-      mutation.mutate(
-        { id, newStatus: next },
-        {
-          onError: () => showError('No se pudo actualizar el estado.'),
-        },
-      );
+    (id: string) => {
+      readStore.toggle(KIND_TO_TYPE[kind], id);
     },
-    [mutation, showError],
+    [kind],
   );
 
-  return { toggle, isPending: mutation.isPending };
+  return { toggle, isPending: false };
 }

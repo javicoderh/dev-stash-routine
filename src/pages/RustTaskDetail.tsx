@@ -7,12 +7,14 @@ import { Markdown } from '@/components/markdown/Markdown';
 import { CodeBlock } from '@/components/markdown/CodeBlock';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToggleStatus } from '@/hooks/useToggleStatus';
+import { useReadStatus } from '@/hooks/useReadStatus';
 import { formatDateLong } from '@/lib/dates';
 import { NotFoundInline } from '@/pages/NotFound';
 
 export default function RustTaskDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: task, isLoading } = useRustTask(id);
+  const status = useReadStatus('task', id ?? '');
   const { toggle } = useToggleStatus('task');
 
   if (isLoading) return <DetailSkeleton />;
@@ -40,12 +42,12 @@ export default function RustTaskDetail() {
         </h1>
         <div className="mt-6 flex items-center gap-3">
           <StatusToggle
-            status={task.status}
-            onToggle={() => toggle(task.id, task.status)}
+            status={status}
+            onToggle={() => toggle(task.id)}
             size="lg"
           />
           <span className="text-sm text-text-secondary">
-            {task.status === 'read' ? 'Leído' : 'Pendiente'}
+            {status === 'read' ? 'Leído' : 'Pendiente'}
           </span>
         </div>
       </header>

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useAllAgentItems } from '@/lib/queries';
+import { useReadMap } from '@/hooks/useReadStatus';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { ArchiveFilters, type FilterGroup } from '@/components/archive/ArchiveFilters';
 import { ArchiveGrid } from '@/components/archive/ArchiveGrid';
@@ -13,6 +14,7 @@ type AgentFilter = 'all' | string;
 
 export default function AgentItemsArchive() {
   const { data, isLoading } = useAllAgentItems();
+  const readMap = useReadMap('agent');
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const [status, setStatus] = useState<StatusFilter>('all');
   const [type, setType] = useState<TypeFilter>('all');
@@ -26,12 +28,15 @@ export default function AgentItemsArchive() {
   const filtered = useMemo(() => {
     if (!data) return [];
     return data.filter((i) => {
-      if (status !== 'all' && i.status !== status) return false;
+      if (status !== 'all') {
+        const itemStatus: ItemStatus = readMap[i.id] ? 'read' : 'pending';
+        if (itemStatus !== status) return false;
+      }
       if (type !== 'all' && i.type !== type) return false;
       if (agentName !== 'all' && i.agentName !== agentName) return false;
       return true;
     });
-  }, [data, status, type, agentName]);
+  }, [data, readMap, status, type, agentName]);
 
   const groups: FilterGroup<string>[] = [
     {

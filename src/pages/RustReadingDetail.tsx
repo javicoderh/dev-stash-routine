@@ -5,12 +5,14 @@ import { StatusToggle } from '@/components/ui/StatusToggle';
 import { Markdown } from '@/components/markdown/Markdown';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToggleStatus } from '@/hooks/useToggleStatus';
+import { useReadStatus } from '@/hooks/useReadStatus';
 import { formatDateLong } from '@/lib/dates';
 import { NotFoundInline } from '@/pages/NotFound';
 
 export default function RustReadingDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: reading, isLoading } = useRustReading(id);
+  const status = useReadStatus('reading', id ?? '');
   const { toggle } = useToggleStatus('reading');
 
   if (isLoading) return <DetailSkeleton />;
@@ -35,12 +37,12 @@ export default function RustReadingDetail() {
         </h1>
         <div className="mt-6 flex items-center gap-3">
           <StatusToggle
-            status={reading.status}
-            onToggle={() => toggle(reading.id, reading.status)}
+            status={status}
+            onToggle={() => toggle(reading.id)}
             size="lg"
           />
           <span className="text-sm text-text-secondary">
-            {reading.status === 'read' ? 'Leído' : 'Pendiente'}
+            {status === 'read' ? 'Leído' : 'Pendiente'}
           </span>
         </div>
       </header>

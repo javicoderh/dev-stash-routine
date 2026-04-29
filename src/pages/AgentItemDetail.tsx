@@ -7,12 +7,14 @@ import { Markdown } from '@/components/markdown/Markdown';
 import { CodeBlock } from '@/components/markdown/CodeBlock';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToggleStatus } from '@/hooks/useToggleStatus';
+import { useReadStatus } from '@/hooks/useReadStatus';
 import { formatDateLong } from '@/lib/dates';
 import { NotFoundInline } from '@/pages/NotFound';
 
 export default function AgentItemDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: item, isLoading } = useAgentItem(id);
+  const status = useReadStatus('agent', id ?? '');
   const { toggle } = useToggleStatus('agent');
 
   if (isLoading) return <DetailSkeleton />;
@@ -46,12 +48,12 @@ export default function AgentItemDetail() {
         </h1>
         <div className="mt-6 flex items-center gap-3">
           <StatusToggle
-            status={item.status}
-            onToggle={() => toggle(item.id, item.status)}
+            status={status}
+            onToggle={() => toggle(item.id)}
             size="lg"
           />
           <span className="text-sm text-text-secondary">
-            {item.status === 'read' ? 'Leído' : 'Pendiente'}
+            {status === 'read' ? 'Leído' : 'Pendiente'}
           </span>
         </div>
       </header>

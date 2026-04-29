@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useAllAiTips } from '@/lib/queries';
+import { useReadMap } from '@/hooks/useReadStatus';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { ArchiveFilters, type FilterGroup } from '@/components/archive/ArchiveFilters';
 import { ArchiveGrid } from '@/components/archive/ArchiveGrid';
@@ -13,6 +14,7 @@ type ToolFilter = 'all' | string;
 
 export default function AiTipsArchive() {
   const { data, isLoading } = useAllAiTips();
+  const readMap = useReadMap('tip');
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const [status, setStatus] = useState<StatusFilter>('all');
   const [category, setCategory] = useState<CategoryFilter>('all');
@@ -26,12 +28,15 @@ export default function AiTipsArchive() {
   const filtered = useMemo(() => {
     if (!data) return [];
     return data.filter((t) => {
-      if (status !== 'all' && t.status !== status) return false;
+      if (status !== 'all') {
+        const itemStatus: ItemStatus = readMap[t.id] ? 'read' : 'pending';
+        if (itemStatus !== status) return false;
+      }
       if (category !== 'all' && t.category !== category) return false;
       if (toolName !== 'all' && t.toolName !== toolName) return false;
       return true;
     });
-  }, [data, status, category, toolName]);
+  }, [data, readMap, status, category, toolName]);
 
   const groups: FilterGroup<string>[] = [
     {

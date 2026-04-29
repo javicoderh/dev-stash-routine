@@ -6,12 +6,14 @@ import { StatusToggle } from '@/components/ui/StatusToggle';
 import { Markdown } from '@/components/markdown/Markdown';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useToggleStatus } from '@/hooks/useToggleStatus';
+import { useReadStatus } from '@/hooks/useReadStatus';
 import { formatDateLong } from '@/lib/dates';
 import { NotFoundInline } from '@/pages/NotFound';
 
 export default function AiTipDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: tip, isLoading } = useAiTip(id);
+  const status = useReadStatus('tip', id ?? '');
   const { toggle } = useToggleStatus('tip');
 
   if (isLoading) return <DetailSkeleton />;
@@ -40,12 +42,12 @@ export default function AiTipDetail() {
         </h1>
         <div className="mt-6 flex items-center gap-3">
           <StatusToggle
-            status={tip.status}
-            onToggle={() => toggle(tip.id, tip.status)}
+            status={status}
+            onToggle={() => toggle(tip.id)}
             size="lg"
           />
           <span className="text-sm text-text-secondary">
-            {tip.status === 'read' ? 'Leído' : 'Pendiente'}
+            {status === 'read' ? 'Leído' : 'Pendiente'}
           </span>
         </div>
       </header>

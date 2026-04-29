@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useAllRustReadings } from '@/lib/queries';
+import { useReadMap } from '@/hooks/useReadStatus';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { ArchiveFilters, type FilterGroup } from '@/components/archive/ArchiveFilters';
 import { ArchiveGrid } from '@/components/archive/ArchiveGrid';
@@ -11,13 +12,18 @@ type StatusFilter = 'all' | ItemStatus;
 
 export default function RustReadingsArchive() {
   const { data, isLoading } = useAllRustReadings();
+  const readMap = useReadMap('reading');
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const [status, setStatus] = useState<StatusFilter>('all');
 
   const filtered = useMemo(() => {
     if (!data) return [];
-    return data.filter((r) => (status === 'all' ? true : r.status === status));
-  }, [data, status]);
+    if (status === 'all') return data;
+    return data.filter((r) => {
+      const s: ItemStatus = readMap[r.id] ? 'read' : 'pending';
+      return s === status;
+    });
+  }, [data, readMap, status]);
 
   const groups: FilterGroup<string>[] = [
     {
