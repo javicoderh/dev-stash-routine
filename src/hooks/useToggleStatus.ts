@@ -1,16 +1,27 @@
 import { useCallback } from 'react';
-import { useToggleReadingStatus, useToggleTaskStatus } from '@/lib/queries';
+import {
+  useToggleAgentItemStatus,
+  useToggleAiTipStatus,
+  useToggleReadingStatus,
+  useToggleTaskStatus,
+} from '@/lib/queries';
 import { useToast } from '@/components/ui/Toast';
 import type { ItemStatus } from '@/types/firestore';
 
-type Kind = 'task' | 'reading';
+type Kind = 'task' | 'reading' | 'agent' | 'tip';
 
 export function useToggleStatus(kind: Kind) {
   const taskMutation = useToggleTaskStatus();
   const readingMutation = useToggleReadingStatus();
+  const agentMutation = useToggleAgentItemStatus();
+  const tipMutation = useToggleAiTipStatus();
   const { showError } = useToast();
 
-  const mutation = kind === 'task' ? taskMutation : readingMutation;
+  const mutation =
+    kind === 'task' ? taskMutation
+    : kind === 'reading' ? readingMutation
+    : kind === 'agent' ? agentMutation
+    : tipMutation;
 
   const toggle = useCallback(
     (id: string, currentStatus: ItemStatus) => {

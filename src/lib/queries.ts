@@ -17,7 +17,10 @@ import {
 } from '@tanstack/react-query';
 import { db } from '@/lib/firebase';
 import type {
+  AgentItem,
+  AiTip,
   Briefing,
+  BusinessIdea,
   FlatNewsItem,
   ItemStatus,
   RustReading,
@@ -38,6 +41,18 @@ export const queryKeys = {
   recentRustReadings: (limit: number) => ['rustReadings', 'recent', limit] as const,
   rustReading: (id: string) => ['rustReadings', 'byId', id] as const,
   allRustReadings: ['rustReadings', 'all'] as const,
+
+  recentAgentItems: (limit: number) => ['agentItems', 'recent', limit] as const,
+  agentItem: (id: string) => ['agentItems', 'byId', id] as const,
+  allAgentItems: ['agentItems', 'all'] as const,
+
+  recentBusinessIdeas: (limit: number) => ['businessIdeas', 'recent', limit] as const,
+  businessIdea: (id: string) => ['businessIdeas', 'byId', id] as const,
+  allBusinessIdeas: ['businessIdeas', 'all'] as const,
+
+  recentAiTips: (limit: number) => ['aiTips', 'recent', limit] as const,
+  aiTip: (id: string) => ['aiTips', 'byId', id] as const,
+  allAiTips: ['aiTips', 'all'] as const,
 };
 
 export function useLatestBriefing() {
@@ -208,9 +223,141 @@ export function useAllRustReadings() {
   });
 }
 
+export function useRecentAgentItems(limit = 7) {
+  return useQuery({
+    queryKey: queryKeys.recentAgentItems(limit),
+    staleTime: LIST_STALE,
+    queryFn: async (): Promise<AgentItem[]> => {
+      const q = query(
+        collection(db, 'agentItems'),
+        orderBy('date', 'desc'),
+        fsLimit(limit),
+      );
+      const snap = await getDocs(q);
+      return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<AgentItem, 'id'>) }));
+    },
+  });
+}
+
+export function useAgentItem(id: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.agentItem(id ?? '__missing__'),
+    enabled: !!id,
+    staleTime: DETAIL_STALE,
+    queryFn: async (): Promise<AgentItem | null> => {
+      if (!id) return null;
+      const ref = doc(db, 'agentItems', id);
+      const snap = await getDoc(ref);
+      return snap.exists()
+        ? ({ id: snap.id, ...(snap.data() as Omit<AgentItem, 'id'>) })
+        : null;
+    },
+  });
+}
+
+export function useAllAgentItems() {
+  return useQuery({
+    queryKey: queryKeys.allAgentItems,
+    staleTime: LIST_STALE,
+    queryFn: async (): Promise<AgentItem[]> => {
+      const q = query(collection(db, 'agentItems'), orderBy('date', 'desc'));
+      const snap = await getDocs(q);
+      return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<AgentItem, 'id'>) }));
+    },
+  });
+}
+
+export function useRecentBusinessIdeas(limit = 7) {
+  return useQuery({
+    queryKey: queryKeys.recentBusinessIdeas(limit),
+    staleTime: LIST_STALE,
+    queryFn: async (): Promise<BusinessIdea[]> => {
+      const q = query(
+        collection(db, 'businessIdeas'),
+        orderBy('date', 'desc'),
+        fsLimit(limit),
+      );
+      const snap = await getDocs(q);
+      return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<BusinessIdea, 'id'>) }));
+    },
+  });
+}
+
+export function useBusinessIdea(id: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.businessIdea(id ?? '__missing__'),
+    enabled: !!id,
+    staleTime: DETAIL_STALE,
+    queryFn: async (): Promise<BusinessIdea | null> => {
+      if (!id) return null;
+      const ref = doc(db, 'businessIdeas', id);
+      const snap = await getDoc(ref);
+      return snap.exists()
+        ? ({ id: snap.id, ...(snap.data() as Omit<BusinessIdea, 'id'>) })
+        : null;
+    },
+  });
+}
+
+export function useAllBusinessIdeas() {
+  return useQuery({
+    queryKey: queryKeys.allBusinessIdeas,
+    staleTime: LIST_STALE,
+    queryFn: async (): Promise<BusinessIdea[]> => {
+      const q = query(collection(db, 'businessIdeas'), orderBy('date', 'desc'));
+      const snap = await getDocs(q);
+      return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<BusinessIdea, 'id'>) }));
+    },
+  });
+}
+
+export function useRecentAiTips(limit = 7) {
+  return useQuery({
+    queryKey: queryKeys.recentAiTips(limit),
+    staleTime: LIST_STALE,
+    queryFn: async (): Promise<AiTip[]> => {
+      const q = query(
+        collection(db, 'aiTips'),
+        orderBy('date', 'desc'),
+        fsLimit(limit),
+      );
+      const snap = await getDocs(q);
+      return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<AiTip, 'id'>) }));
+    },
+  });
+}
+
+export function useAiTip(id: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.aiTip(id ?? '__missing__'),
+    enabled: !!id,
+    staleTime: DETAIL_STALE,
+    queryFn: async (): Promise<AiTip | null> => {
+      if (!id) return null;
+      const ref = doc(db, 'aiTips', id);
+      const snap = await getDoc(ref);
+      return snap.exists()
+        ? ({ id: snap.id, ...(snap.data() as Omit<AiTip, 'id'>) })
+        : null;
+    },
+  });
+}
+
+export function useAllAiTips() {
+  return useQuery({
+    queryKey: queryKeys.allAiTips,
+    staleTime: LIST_STALE,
+    queryFn: async (): Promise<AiTip[]> => {
+      const q = query(collection(db, 'aiTips'), orderBy('date', 'desc'));
+      const snap = await getDocs(q);
+      return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<AiTip, 'id'>) }));
+    },
+  });
+}
+
 type ToggleVars = { id: string; newStatus: ItemStatus };
 
-function buildToggle(collectionName: 'rustTasks' | 'rustReadings') {
+function buildToggle(collectionName: 'rustTasks' | 'rustReadings' | 'agentItems' | 'aiTips') {
   return async ({ id, newStatus }: ToggleVars) => {
     const ref = doc(db, collectionName, id);
     await updateDoc(ref, {
@@ -236,7 +383,7 @@ function patchItemInList<T extends { id: string; status: ItemStatus; readAt: unk
 }
 
 function useToggleMutation(
-  collectionName: 'rustTasks' | 'rustReadings',
+  collectionName: 'rustTasks' | 'rustReadings' | 'agentItems' | 'aiTips',
   listKeys: ListQueryKey[],
   detailKey: (id: string) => ListQueryKey,
 ) {
@@ -289,5 +436,21 @@ export function useToggleReadingStatus() {
     'rustReadings',
     [queryKeys.allRustReadings, queryKeys.recentRustReadings(7)],
     queryKeys.rustReading,
+  );
+}
+
+export function useToggleAgentItemStatus() {
+  return useToggleMutation(
+    'agentItems',
+    [queryKeys.allAgentItems, queryKeys.recentAgentItems(7)],
+    queryKeys.agentItem,
+  );
+}
+
+export function useToggleAiTipStatus() {
+  return useToggleMutation(
+    'aiTips',
+    [queryKeys.allAiTips, queryKeys.recentAiTips(7)],
+    queryKeys.aiTip,
   );
 }

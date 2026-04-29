@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
-import type { FlatNewsItem, RustReading, RustTask } from '@/types/firestore';
+import type { AgentItem, AiTip, BusinessIdea, FlatNewsItem, RustReading, RustTask } from '@/types/firestore';
 import { pickFallback } from '@/lib/fallbackImages';
 import { StatusToggle } from '@/components/ui/StatusToggle';
-import { StatusBadge, FormatBadge } from '@/components/ui/StatusBadge';
+import { AgentTypeBadge, AiTipCategoryBadge, StatusBadge, FormatBadge } from '@/components/ui/StatusBadge';
 import { useToggleStatus } from '@/hooks/useToggleStatus';
 import { formatDateShort } from '@/lib/dates';
 
@@ -122,6 +122,127 @@ export function RustTaskArchiveCard({ task }: { task: RustTask }) {
           {task.status === 'read' ? 'Leído' : 'Pendiente'}
         </span>
       </div>
+    </CardShell>
+  );
+}
+
+export function AgentItemArchiveCard({ item }: { item: AgentItem }) {
+  const { toggle } = useToggleStatus('agent');
+
+  return (
+    <CardShell>
+      <RouterLink
+        to={`/agent-items/${item.id}`}
+        className="flex flex-col flex-1 p-5"
+      >
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] text-text-muted">
+              {formatDateShort(item.date)}
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
+              {item.agentName}
+            </span>
+            <AgentTypeBadge type={item.type} />
+          </div>
+          <StatusBadge status={item.status} />
+        </div>
+        <h3 className="font-display text-lg font-medium leading-snug text-text-primary
+                       group-hover:text-accent-primary transition-colors">
+          {item.title}
+        </h3>
+        <p className="mt-2 text-sm text-text-secondary line-clamp-3 flex-1 font-serif">
+          {firstLines(item.content, 200)}
+        </p>
+      </RouterLink>
+      <div className="border-t border-border px-5 py-3 flex items-center gap-3">
+        <StatusToggle
+          status={item.status}
+          onToggle={() => toggle(item.id, item.status)}
+          size="sm"
+          label={`${item.status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${item.title}`}
+        />
+        <span className="text-xs text-text-secondary">
+          {item.status === 'read' ? 'Leído' : 'Pendiente'}
+        </span>
+      </div>
+    </CardShell>
+  );
+}
+
+export function AiTipArchiveCard({ tip }: { tip: AiTip }) {
+  const { toggle } = useToggleStatus('tip');
+
+  return (
+    <CardShell>
+      <RouterLink
+        to={`/ai-tips/${tip.id}`}
+        className="flex flex-col flex-1 p-5"
+      >
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] text-text-muted">
+              {formatDateShort(tip.date)}
+            </span>
+            <AiTipCategoryBadge category={tip.category} />
+            <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
+              {tip.toolName}
+            </span>
+          </div>
+          <StatusBadge status={tip.status} />
+        </div>
+        <h3 className="font-display text-lg font-medium leading-snug text-text-primary
+                       group-hover:text-accent-primary transition-colors">
+          {tip.title}
+        </h3>
+        <p className="mt-2 text-sm text-text-secondary line-clamp-3 flex-1 font-serif">
+          {firstLines(tip.content, 200)}
+        </p>
+      </RouterLink>
+      <div className="border-t border-border px-5 py-3 flex items-center gap-3">
+        <StatusToggle
+          status={tip.status}
+          onToggle={() => toggle(tip.id, tip.status)}
+          size="sm"
+          label={`${tip.status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${tip.title}`}
+        />
+        <span className="text-xs text-text-secondary">
+          {tip.status === 'read' ? 'Leído' : 'Pendiente'}
+        </span>
+      </div>
+    </CardShell>
+  );
+}
+
+export function BusinessIdeaArchiveCard({ idea }: { idea: BusinessIdea }) {
+  return (
+    <CardShell>
+      <RouterLink
+        to={`/business-ideas/${idea.id}`}
+        className="flex flex-col flex-1 p-5"
+      >
+        <div className="mb-3">
+          <span className="font-mono text-[10px] text-text-muted">
+            {formatDateShort(idea.date)}
+          </span>
+        </div>
+        <h3 className="font-display text-lg font-medium leading-snug text-text-primary
+                       group-hover:text-accent-primary transition-colors">
+          {idea.title}
+        </h3>
+        <p className="mt-2 text-xs uppercase tracking-wider font-mono text-text-muted">
+          Mercado
+        </p>
+        <p className="text-sm text-text-secondary line-clamp-2 font-serif">
+          {idea.market}
+        </p>
+        <p className="mt-3 text-xs uppercase tracking-wider font-mono text-text-muted">
+          Problema
+        </p>
+        <p className="text-sm text-text-secondary line-clamp-3 font-serif flex-1">
+          {idea.problem}
+        </p>
+      </RouterLink>
     </CardShell>
   );
 }

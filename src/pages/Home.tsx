@@ -4,6 +4,9 @@ import { useLatestBriefing } from '@/lib/queries';
 import { NewsCarousel } from '@/components/news/NewsCarousel';
 import { RustTasksAside } from '@/components/rust/RustTasksAside';
 import { RustReadingsList } from '@/components/rust/RustReadingsList';
+import { AgentItemsList } from '@/components/agents/AgentItemsList';
+import { BusinessIdeasList } from '@/components/business/BusinessIdeasList';
+import { AiTipsList } from '@/components/tips/AiTipsList';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { MonoLabel } from '@/components/ui/MonoLabel';
 import { formatDateLong, todayISO } from '@/lib/dates';
@@ -56,7 +59,15 @@ export default function Home() {
       </section>
 
       <hr className="border-border" />
+      <BusinessIdeasList />
 
+      <hr className="border-border" />
+      <AiTipsList />
+
+      <hr className="border-border" />
+      <AgentItemsList />
+
+      <hr className="border-border" />
       <RustReadingsList />
     </div>
   );

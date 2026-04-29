@@ -62,3 +62,53 @@ export type FlatNewsItem = NewsItem & {
   briefingDate: string;
   indexInBriefing: number;
 };
+
+export type AgentItemType = 'news' | 'changelog' | 'pattern';
+
+export type AgentItem = {
+  id: string;
+  date: string;
+  agentName: string;
+  type: AgentItemType;
+  title: string;
+  content: string;
+  codeSnippet: string | null;
+  version: string | null;
+  sources: string[];
+  status: ItemStatus;
+  readAt: Timestamp | null;
+  createdAt: Timestamp;
+};
+
+export type BusinessIdea = {
+  id: string;
+  date: string;
+  title: string;
+  worldContext: string;
+  problem: string;
+  solution: string;
+  market: string;
+  sources: string[];
+  createdAt: Timestamp;
+};
+
+export type AiTipCategory =
+  | 'productividad'
+  | 'escritura'
+  | 'estudio'
+  | 'trabajo'
+  | 'vida_diaria'
+  | 'investigacion';
+
+export type AiTip = {
+  id: string;
+  date: string;
+  title: string;
+  content: string;
+  toolName: string;
+  category: AiTipCategory;
+  sources: string[];
+  status: ItemStatus;
+  readAt: Timestamp | null;
+  createdAt: Timestamp;
+};

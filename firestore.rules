@@ -6,6 +6,15 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isBot() {
+      return isSignedIn()
+        && request.auth.uid == 'SuTqNzX5A5hwmDnMh7wCK4aHEss1';
+    }
+
+    function isOwner() {
+      return isSignedIn() && !isBot();
+    }
+
     function onlyToggleFields() {
       return request.resource.data.diff(resource.data).affectedKeys()
         .hasOnly(['status', 'readAt']);
@@ -13,19 +22,40 @@ service cloud.firestore {
 
     match /briefings/{date} {
       allow read: if isSignedIn();
-      allow write: if false;
+      allow write: if isBot();
     }
 
     match /rustTasks/{id} {
       allow read: if isSignedIn();
-      allow update: if isSignedIn() && onlyToggleFields();
-      allow create, delete: if false;
+      allow create: if isBot();
+      allow update: if isBot() || (isOwner() && onlyToggleFields());
+      allow delete: if isBot();
     }
 
     match /rustReadings/{id} {
       allow read: if isSignedIn();
-      allow update: if isSignedIn() && onlyToggleFields();
-      allow create, delete: if false;
+      allow create: if isBot();
+      allow update: if isBot() || (isOwner() && onlyToggleFields());
+      allow delete: if isBot();
+    }
+
+    match /agentItems/{id} {
+      allow read: if isSignedIn();
+      allow create: if isBot();
+      allow update: if isBot() || (isOwner() && onlyToggleFields());
+      allow delete: if isBot();
+    }
+
+    match /businessIdeas/{id} {
+      allow read: if isSignedIn();
+      allow write: if isBot();
+    }
+
+    match /aiTips/{id} {
+      allow read: if isSignedIn();
+      allow create: if isBot();
+      allow update: if isBot() || (isOwner() && onlyToggleFields());
+      allow delete: if isBot();
     }
   }
 }

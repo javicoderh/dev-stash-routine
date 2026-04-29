@@ -21,8 +21,13 @@ export default function NotFound() {
   );
 }
 
-export function NotFoundInline({ kind }: { kind: 'task' | 'reading' }) {
-  const label = kind === 'task' ? 'task' : 'lectura';
+export function NotFoundInline({ kind }: { kind: 'task' | 'reading' | 'agent' | 'tip' | 'businessIdea' }) {
+  const label =
+    kind === 'task' ? 'task'
+    : kind === 'reading' ? 'lectura'
+    : kind === 'agent' ? 'agent item'
+    : kind === 'tip' ? 'tip'
+    : 'idea de negocio';
   return (
     <div className="min-h-[50vh] flex flex-col items-center justify-center text-center">
       <span className="font-mono text-xs text-text-muted tracking-wider">404</span>

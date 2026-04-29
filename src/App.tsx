@@ -15,6 +15,12 @@ const RustTasksArchive = lazy(() => import('@/pages/RustTasksArchive'));
 const RustReadingsArchive = lazy(() => import('@/pages/RustReadingsArchive'));
 const RustTaskDetail = lazy(() => import('@/pages/RustTaskDetail'));
 const RustReadingDetail = lazy(() => import('@/pages/RustReadingDetail'));
+const AgentItemsArchive = lazy(() => import('@/pages/AgentItemsArchive'));
+const AgentItemDetail = lazy(() => import('@/pages/AgentItemDetail'));
+const BusinessIdeasArchive = lazy(() => import('@/pages/BusinessIdeasArchive'));
+const BusinessIdeaDetail = lazy(() => import('@/pages/BusinessIdeaDetail'));
+const AiTipsArchive = lazy(() => import('@/pages/AiTipsArchive'));
+const AiTipDetail = lazy(() => import('@/pages/AiTipDetail'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 const queryClient = new QueryClient({
@@ -92,6 +98,66 @@ export default function App() {
                     <RequireAuth>
                       <AppShell>
                         <RustReadingDetail />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/archive/agents"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <AgentItemsArchive />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/agent-items/:id"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <AgentItemDetail />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/archive/business-ideas"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <BusinessIdeasArchive />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/business-ideas/:id"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <BusinessIdeaDetail />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/archive/ai-tips"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <AiTipsArchive />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/ai-tips/:id"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <AiTipDetail />
                       </AppShell>
                     </RequireAuth>
                   }
