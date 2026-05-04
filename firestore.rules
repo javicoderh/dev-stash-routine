@@ -40,5 +40,9 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow write: if isBot();
     }
+
+    match /visitors/{uid} {
+      allow read, write: if isSignedIn() && request.auth.uid == uid;
+    }
   }
 }

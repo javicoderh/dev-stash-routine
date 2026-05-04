@@ -67,7 +67,7 @@ export function Header() {
                              rounded-xl shadow-sm p-1"
                 >
                   <div className="px-3 py-2 text-xs text-text-muted truncate">
-                    {user.email}
+                    {user.email ?? localStorage.getItem('dev-stash:visitor-email') ?? '—'}
                   </div>
                   <button
                     type="button"

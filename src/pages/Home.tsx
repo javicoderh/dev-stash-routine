@@ -1,6 +1,7 @@
 import { Link as RouterLink } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { useLatestBriefing } from '@/lib/queries';
+import { QuickNav } from '@/components/home/QuickNav';
 import { NewsCarousel } from '@/components/news/NewsCarousel';
 import { RustTasksAside } from '@/components/rust/RustTasksAside';
 import { RustReadingsList } from '@/components/rust/RustReadingsList';
@@ -17,7 +18,26 @@ export default function Home() {
 
   return (
     <div className="space-y-16">
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-12">
+      <QuickNav />
+
+      <hr className="border-border" />
+
+      <section id="business-ideas">
+        <BusinessIdeasList />
+      </section>
+
+      <hr className="border-border" />
+
+      <section id="ai-tips">
+        <AiTipsList />
+      </section>
+
+      <hr className="border-border" />
+
+      <section
+        id="news"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-12"
+      >
         <div className="lg:col-span-2">
           <div className="mb-5 flex items-center gap-3">
             <MonoLabel>Briefing de hoy</MonoLabel>
@@ -53,22 +73,22 @@ export default function Home() {
           )}
         </div>
 
-        <div className="lg:col-span-1">
+        <div id="rust-tasks" className="lg:col-span-1">
           <RustTasksAside />
         </div>
       </section>
 
       <hr className="border-border" />
-      <BusinessIdeasList />
+
+      <section id="agents">
+        <AgentItemsList />
+      </section>
 
       <hr className="border-border" />
-      <AiTipsList />
 
-      <hr className="border-border" />
-      <AgentItemsList />
-
-      <hr className="border-border" />
-      <RustReadingsList />
+      <section id="rust-readings">
+        <RustReadingsList />
+      </section>
     </div>
   );
 }

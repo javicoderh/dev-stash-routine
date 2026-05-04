@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   onAuthStateChanged,
+  signInAnonymously,
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
   type User,
@@ -26,13 +27,18 @@ export function AuthProvider({ children }: Props) {
     await signInWithEmailAndPassword(auth, email, password);
   }, []);
 
+  const signInAnon = useCallback(async (): Promise<string> => {
+    const cred = await signInAnonymously(auth);
+    return cred.user.uid;
+  }, []);
+
   const signOut = useCallback(async () => {
     await firebaseSignOut(auth);
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, loading, signIn, signOut }),
-    [user, loading, signIn, signOut],
+    () => ({ user, loading, signIn, signInAnon, signOut }),
+    [user, loading, signIn, signInAnon, signOut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

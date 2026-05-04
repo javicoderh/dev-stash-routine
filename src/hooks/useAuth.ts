@@ -8,6 +8,7 @@ export type AuthContextValue = {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signInAnon: () => Promise<string>;
   signOut: () => Promise<void>;
 };
 

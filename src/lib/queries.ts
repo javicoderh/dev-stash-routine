@@ -6,8 +6,10 @@ import {
   limit as fsLimit,
   orderBy,
   query,
+  serverTimestamp,
+  setDoc,
 } from 'firebase/firestore';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/firebase';
 import type {
   AgentItem,
@@ -343,6 +345,14 @@ export function useAllAiTips() {
       const q = query(collection(db, 'aiTips'), orderBy('date', 'desc'));
       const snap = await getDocs(q);
       return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<AiTip, 'id'>) }));
+    },
+  });
+}
+
+export function useSaveVisitorEmail() {
+  return useMutation({
+    mutationFn: async ({ uid, email }: { uid: string; email: string }) => {
+      await setDoc(doc(db, 'visitors', uid), { email, createdAt: serverTimestamp() });
     },
   });
 }
