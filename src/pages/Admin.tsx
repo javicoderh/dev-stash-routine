@@ -1,6 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronRight, LogOut, Pencil, Plus, Trash2, X } from 'lucide-react';
+import {
+  BookOpen,
+  Bot,
+  ChevronDown,
+  ChevronRight,
+  ClipboardList,
+  Lightbulb,
+  LogOut,
+  Newspaper,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
+  Zap,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useAdminCollection,
@@ -25,6 +40,7 @@ type FieldConfig = {
 type CollectionConfig = {
   collectionName: string;
   label: string;
+  icon: LucideIcon;
   useDocIdFromField?: string;
   hasStatus?: boolean;
   fields: FieldConfig[];
@@ -34,6 +50,7 @@ const COLLECTIONS: CollectionConfig[] = [
   {
     collectionName: 'briefings',
     label: 'Briefings',
+    icon: Newspaper,
     useDocIdFromField: 'date',
     fields: [
       { key: 'date', label: 'Date (YYYY-MM-DD)', type: 'date', required: true },
@@ -44,6 +61,7 @@ const COLLECTIONS: CollectionConfig[] = [
   {
     collectionName: 'rustTasks',
     label: 'Rust Tasks',
+    icon: ClipboardList,
     hasStatus: true,
     fields: [
       { key: 'date', label: 'Date', type: 'date', required: true },
@@ -69,6 +87,7 @@ const COLLECTIONS: CollectionConfig[] = [
   {
     collectionName: 'rustReadings',
     label: 'Rust Readings',
+    icon: BookOpen,
     hasStatus: true,
     fields: [
       { key: 'date', label: 'Date', type: 'date', required: true },
@@ -80,6 +99,7 @@ const COLLECTIONS: CollectionConfig[] = [
   {
     collectionName: 'agentItems',
     label: 'Agent Items',
+    icon: Bot,
     hasStatus: true,
     fields: [
       { key: 'date', label: 'Date', type: 'date', required: true },
@@ -105,6 +125,7 @@ const COLLECTIONS: CollectionConfig[] = [
   {
     collectionName: 'businessIdeas',
     label: 'Business Ideas',
+    icon: Lightbulb,
     fields: [
       { key: 'date', label: 'Date', type: 'date', required: true },
       { key: 'title', label: 'Title', type: 'text', required: true },
@@ -118,6 +139,7 @@ const COLLECTIONS: CollectionConfig[] = [
   {
     collectionName: 'aiTips',
     label: 'AI Tips',
+    icon: Zap,
     hasStatus: true,
     fields: [
       { key: 'date', label: 'Date', type: 'date', required: true },
@@ -306,6 +328,7 @@ function ItemForm({
 type EditMode = 'idle' | 'creating' | { id: string };
 
 function SectionPanel({ config }: { config: CollectionConfig }) {
+  const Icon = config.icon;
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<EditMode>('idle');
   const [formValues, setFormValues] = useState<Record<string, string>>({});
@@ -393,6 +416,7 @@ function SectionPanel({ config }: { config: CollectionConfig }) {
         ) : (
           <ChevronRight className="w-4 h-4 text-text-muted flex-shrink-0" />
         )}
+        <Icon className="w-4 h-4 text-accent-primary flex-shrink-0" />
         <span className="font-display text-base font-medium text-text-primary">
           {config.label}
         </span>
@@ -549,7 +573,7 @@ export default function Admin() {
     <div className="min-h-screen bg-bg-base">
       <header className="border-b border-border bg-bg-surface sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
-          <span className="font-display text-base font-semibold text-text-primary">Admin</span>
+          <span className="font-display text-base font-semibold text-text-primary">Dashboard</span>
           <button
             type="button"
             onClick={handleSignOut}

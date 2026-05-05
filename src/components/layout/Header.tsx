@@ -37,7 +37,7 @@ export function Header() {
           className="font-display text-lg font-semibold text-text-primary
                      hover:text-accent-primary transition-colors"
         >
-          Personal Dev Stash
+          Dev Stash
         </RouterLink>
 
         <div className="flex items-center gap-3">
