@@ -11,34 +11,39 @@ service cloud.firestore {
         && request.auth.uid == 'SuTqNzX5A5hwmDnMh7wCK4aHEss1';
     }
 
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.firebase.sign_in_provider == 'password';
+    }
+
     match /briefings/{date} {
       allow read: if isSignedIn();
-      allow write: if isBot();
+      allow write: if isBot() || isAdmin();
     }
 
     match /rustTasks/{id} {
       allow read: if isSignedIn();
-      allow write: if isBot();
+      allow write: if isBot() || isAdmin();
     }
 
     match /rustReadings/{id} {
       allow read: if isSignedIn();
-      allow write: if isBot();
+      allow write: if isBot() || isAdmin();
     }
 
     match /agentItems/{id} {
       allow read: if isSignedIn();
-      allow write: if isBot();
+      allow write: if isBot() || isAdmin();
     }
 
     match /businessIdeas/{id} {
       allow read: if isSignedIn();
-      allow write: if isBot();
+      allow write: if isBot() || isAdmin();
     }
 
     match /aiTips/{id} {
       allow read: if isSignedIn();
-      allow write: if isBot();
+      allow write: if isBot() || isAdmin();
     }
 
     match /visitors/{email} {

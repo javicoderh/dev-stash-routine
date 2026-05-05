@@ -22,6 +22,8 @@ const BusinessIdeaDetail = lazy(() => import('@/pages/BusinessIdeaDetail'));
 const AiTipsArchive = lazy(() => import('@/pages/AiTipsArchive'));
 const AiTipDetail = lazy(() => import('@/pages/AiTipDetail'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
+const AdminLogin = lazy(() => import('@/pages/AdminLogin'));
+const Admin = lazy(() => import('@/pages/Admin'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,6 +43,8 @@ export default function App() {
             <Suspense fallback={<FullScreenLoader />}>
               <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin" element={<Admin />} />
 
                 <Route
                   path="/"
