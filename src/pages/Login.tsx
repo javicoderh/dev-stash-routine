@@ -61,11 +61,18 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-bg-base">
       <div className="w-full max-w-sm bg-bg-surface border border-border rounded-2xl p-8 shadow-sm">
-        <h1 className="font-display text-2xl font-semibold text-text-primary mb-1">
+        <p className="font-mono text-[10px] uppercase tracking-widest text-accent-primary mb-4">
           Personal Dev Stash
+        </p>
+        <h1 className="font-display text-3xl font-semibold leading-tight text-text-primary mb-3">
+          Every morning,<br />the frontier finds you.
         </h1>
-        <p className="text-sm text-text-secondary mb-6">
-          Enter your email to continue.
+        <p className="text-sm text-text-secondary mb-1">
+          AI news, Rust patterns, business signals — curated daily.
+          Your private edge, delivered before your first commit.
+        </p>
+        <p className="font-mono text-[11px] text-text-muted mb-7">
+          One email. No password. Just signal.
         </p>
 
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
