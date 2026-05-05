@@ -352,7 +352,7 @@ export function useAllAiTips() {
 export function useSaveVisitorEmail() {
   return useMutation({
     mutationFn: async ({ uid, email }: { uid: string; email: string }) => {
-      await setDoc(doc(db, 'visitors', uid), { email, createdAt: serverTimestamp() });
+      await setDoc(doc(db, 'visitors', email), { email, uid, createdAt: serverTimestamp() }, { merge: true });
     },
   });
 }

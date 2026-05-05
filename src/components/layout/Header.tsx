@@ -24,6 +24,7 @@ export function Header() {
 
   async function handleSignOut() {
     setMenuOpen(false);
+    localStorage.removeItem('dev-stash:visitor-email');
     await signOut();
     navigate('/login', { replace: true });
   }
