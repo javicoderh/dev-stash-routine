@@ -14,13 +14,13 @@ export default function BusinessIdeasArchive() {
     <div>
       <Breadcrumb
         items={[
-          { label: 'Inicio', to: '/' },
-          { label: 'Archivo' },
-          { label: 'Ideas de negocio' },
+          { label: 'Home', to: '/' },
+          { label: 'Archive' },
+          { label: 'Business Ideas' },
         ]}
       />
       <h1 className="font-display text-4xl font-semibold text-text-primary mt-3 mb-6">
-        Ideas de negocio
+        Business Ideas
       </h1>
 
       <ArchiveFilters
@@ -36,7 +36,7 @@ export default function BusinessIdeasArchive() {
           items={data ?? []}
           order={order}
           renderCard={(idea) => <BusinessIdeaArchiveCard key={idea.id} idea={idea} />}
-          emptyMessage="Todavía no hay ideas de negocio generadas."
+          emptyMessage="No business ideas generated yet."
         />
       )}
     </div>

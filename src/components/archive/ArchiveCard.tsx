@@ -78,7 +78,7 @@ export function NewsArchiveCard({ item }: { item: FlatNewsItem }) {
             className="mt-3 inline-flex items-center gap-1 text-xs text-accent-link
                        self-start"
           >
-            Leer <ArrowUpRight className="w-3 h-3" />
+            Read <ArrowUpRight className="w-3 h-3" />
           </span>
         </div>
       </a>
@@ -118,10 +118,10 @@ export function RustTaskArchiveCard({ task }: { task: RustTask }) {
           status={status}
           onToggle={() => toggle(task.id)}
           size="sm"
-          label={`${status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${task.title}`}
+          label={`${status === 'read' ? 'Mark as pending' : 'Mark as read'}: ${task.title}`}
         />
         <span className="text-xs text-text-secondary">
-          {status === 'read' ? 'Leído' : 'Pendiente'}
+          {status === 'read' ? 'Read' : 'Pending'}
         </span>
       </div>
     </CardShell>
@@ -166,7 +166,7 @@ export function AgentItemArchiveCard({ item }: { item: AgentItem }) {
           label={`${status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${item.title}`}
         />
         <span className="text-xs text-text-secondary">
-          {status === 'read' ? 'Leído' : 'Pendiente'}
+          {status === 'read' ? 'Read' : 'Pending'}
         </span>
       </div>
     </CardShell>
@@ -211,7 +211,7 @@ export function AiTipArchiveCard({ tip }: { tip: AiTip }) {
           label={`${status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${tip.title}`}
         />
         <span className="text-xs text-text-secondary">
-          {status === 'read' ? 'Leído' : 'Pendiente'}
+          {status === 'read' ? 'Read' : 'Pending'}
         </span>
       </div>
     </CardShell>
@@ -235,13 +235,13 @@ export function BusinessIdeaArchiveCard({ idea }: { idea: BusinessIdea }) {
           {idea.title}
         </h3>
         <p className="mt-2 text-xs uppercase tracking-wider font-mono text-text-muted">
-          Mercado
+          Market
         </p>
         <p className="text-sm text-text-secondary line-clamp-2 font-serif">
           {idea.market}
         </p>
         <p className="mt-3 text-xs uppercase tracking-wider font-mono text-text-muted">
-          Problema
+          Problem
         </p>
         <p className="text-sm text-text-secondary line-clamp-3 font-serif flex-1">
           {idea.problem}
@@ -283,7 +283,7 @@ export function RustReadingArchiveCard({ reading }: { reading: RustReading }) {
           label={`${status === 'read' ? 'Marcar pendiente' : 'Marcar leído'}: ${reading.title}`}
         />
         <span className="text-xs text-text-secondary">
-          {status === 'read' ? 'Leído' : 'Pendiente'}
+          {status === 'read' ? 'Read' : 'Pending'}
         </span>
       </div>
     </CardShell>

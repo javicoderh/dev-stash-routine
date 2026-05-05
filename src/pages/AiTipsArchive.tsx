@@ -41,36 +41,36 @@ export default function AiTipsArchive() {
   const groups: FilterGroup<string>[] = [
     {
       id: 'status',
-      label: 'Estado',
+      label: 'Status',
       value: status,
       options: [
-        { value: 'all', label: 'Todos' },
-        { value: 'pending', label: 'Pendientes' },
-        { value: 'read', label: 'Leídos' },
+        { value: 'all', label: 'All' },
+        { value: 'pending', label: 'Pending' },
+        { value: 'read', label: 'Read' },
       ],
       onChange: (v) => setStatus(v as StatusFilter),
     },
     {
       id: 'category',
-      label: 'Categoría',
+      label: 'Category',
       value: category,
       options: [
-        { value: 'all', label: 'Todas' },
-        { value: 'productividad', label: 'Productividad' },
-        { value: 'escritura', label: 'Escritura' },
-        { value: 'estudio', label: 'Estudio' },
-        { value: 'trabajo', label: 'Trabajo' },
-        { value: 'vida_diaria', label: 'Vida diaria' },
-        { value: 'investigacion', label: 'Investigación' },
+        { value: 'all', label: 'All' },
+        { value: 'productividad', label: 'Productivity' },
+        { value: 'escritura', label: 'Writing' },
+        { value: 'estudio', label: 'Study' },
+        { value: 'trabajo', label: 'Work' },
+        { value: 'vida_diaria', label: 'Daily life' },
+        { value: 'investigacion', label: 'Research' },
       ],
       onChange: (v) => setCategory(v as CategoryFilter),
     },
     {
       id: 'tool',
-      label: 'Herramienta',
+      label: 'Tool',
       value: toolName,
       options: [
-        { value: 'all', label: 'Todas' },
+        { value: 'all', label: 'All' },
         ...toolNames.map((n) => ({ value: n, label: n })),
       ],
       onChange: (v) => setToolName(v),
@@ -81,8 +81,8 @@ export default function AiTipsArchive() {
     <div>
       <Breadcrumb
         items={[
-          { label: 'Inicio', to: '/' },
-          { label: 'Archivo' },
+          { label: 'Home', to: '/' },
+          { label: 'Archive' },
           { label: 'AI Tips' },
         ]}
       />
@@ -103,7 +103,7 @@ export default function AiTipsArchive() {
           items={filtered}
           order={order}
           renderCard={(tip) => <AiTipArchiveCard key={tip.id} tip={tip} />}
-          emptyMessage="No hay tips que coincidan con estos filtros."
+          emptyMessage="No tips match these filters."
         />
       )}
     </div>

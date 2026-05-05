@@ -13,7 +13,7 @@ export function AiTipsList() {
         <h2 className="font-display text-2xl font-medium text-text-primary">
           AI Tips
         </h2>
-        <span className="text-xs text-text-muted">Últimos 7 días</span>
+        <span className="text-xs text-text-muted">Last 7 days</span>
       </div>
 
       {isLoading ? (
@@ -23,7 +23,7 @@ export function AiTipsList() {
           ))}
         </div>
       ) : !data || data.length === 0 ? (
-        <p className="text-sm text-text-secondary">Sin tips recientes.</p>
+        <p className="text-sm text-text-secondary">No recent tips.</p>
       ) : (
         <ul>
           {data.map((tip) => (
@@ -37,7 +37,7 @@ export function AiTipsList() {
         className="mt-6 inline-flex items-center gap-1.5 text-sm text-accent-link
                    hover:text-accent-primary transition-colors"
       >
-        Histórico completo <ArrowRight className="w-3.5 h-3.5" />
+        Full archive <ArrowRight className="w-3.5 h-3.5" />
       </RouterLink>
     </section>
   );

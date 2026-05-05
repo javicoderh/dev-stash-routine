@@ -37,10 +37,10 @@ export function ArchiveFilters({ groups, order, onToggleOrder }: Props) {
           className="inline-flex items-center gap-1.5 text-xs font-mono uppercase
                      tracking-wider text-text-secondary hover:text-text-primary
                      transition-colors"
-          aria-label={order === 'desc' ? 'Ordenar ascendente' : 'Ordenar descendente'}
+          aria-label={order === 'desc' ? 'Sort ascending' : 'Sort descending'}
         >
           <ArrowDownUp className="w-3.5 h-3.5" />
-          {order === 'desc' ? 'Más reciente' : 'Más antiguo'}
+          {order === 'desc' ? 'Newest first' : 'Oldest first'}
         </button>
       </div>
     </div>

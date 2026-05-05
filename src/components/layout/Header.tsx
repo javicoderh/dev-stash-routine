@@ -53,7 +53,7 @@ export function Header() {
                 onClick={() => setMenuOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
-                aria-label="Menú de usuario"
+                aria-label="User menu"
                 className="inline-flex items-center justify-center w-9 h-9 rounded-full
                            bg-bg-alt text-text-secondary hover:text-text-primary
                            transition-colors"
@@ -77,7 +77,7 @@ export function Header() {
                                text-text-primary hover:bg-bg-alt transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
-                    Cerrar sesión
+                    Sign out
                   </button>
                 </div>
               )}

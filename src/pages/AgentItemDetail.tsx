@@ -24,7 +24,7 @@ export default function AgentItemDetail() {
     <div className="max-w-[720px] mx-auto">
       <Breadcrumb
         items={[
-          { label: 'Inicio', to: '/' },
+          { label: 'Home', to: '/' },
           { label: 'Agent Items', to: '/archive/agents' },
           { label: item.title },
         ]}
@@ -53,7 +53,7 @@ export default function AgentItemDetail() {
             size="lg"
           />
           <span className="text-sm text-text-secondary">
-            {status === 'read' ? 'Leído' : 'Pendiente'}
+            {status === 'read' ? 'Read' : 'Pending'}
           </span>
         </div>
       </header>
@@ -63,7 +63,7 @@ export default function AgentItemDetail() {
       {item.codeSnippet && (
         <section className="my-8">
           <h2 className="font-display text-lg font-medium text-text-primary mb-3">
-            Código
+            Code
           </h2>
           <CodeBlock code={item.codeSnippet} language="typescript" />
         </section>
@@ -72,7 +72,7 @@ export default function AgentItemDetail() {
       {item.sources && item.sources.length > 0 && (
         <section className="mt-10 pt-8 border-t border-border">
           <h2 className="font-display text-lg font-medium text-text-primary mb-3">
-            Fuentes
+            Sources
           </h2>
           <ul className="space-y-1.5">
             {item.sources.map((src) => (

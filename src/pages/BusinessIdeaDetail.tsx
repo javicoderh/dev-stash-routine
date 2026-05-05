@@ -16,8 +16,8 @@ export default function BusinessIdeaDetail() {
     <div className="max-w-[720px] mx-auto">
       <Breadcrumb
         items={[
-          { label: 'Inicio', to: '/' },
-          { label: 'Ideas de negocio', to: '/archive/business-ideas' },
+          { label: 'Home', to: '/' },
+          { label: 'Business Ideas', to: '/archive/business-ideas' },
           { label: idea.title },
         ]}
       />
@@ -31,15 +31,15 @@ export default function BusinessIdeaDetail() {
         </h1>
       </header>
 
-      <IdeaSection label="Contexto del mundo" body={idea.worldContext} />
-      <IdeaSection label="Problema" body={idea.problem} />
-      <IdeaSection label="Solución" body={idea.solution} />
-      <IdeaSection label="Mercado" body={idea.market} />
+      <IdeaSection label="World Context" body={idea.worldContext} />
+      <IdeaSection label="Problem" body={idea.problem} />
+      <IdeaSection label="Solution" body={idea.solution} />
+      <IdeaSection label="Market" body={idea.market} />
 
       {idea.sources && idea.sources.length > 0 && (
         <section className="mt-10 pt-8 border-t border-border">
           <h2 className="font-display text-lg font-medium text-text-primary mb-3">
-            Fuentes
+            Sources
           </h2>
           <ul className="space-y-1.5">
             {idea.sources.map((src) => (

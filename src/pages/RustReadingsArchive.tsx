@@ -28,12 +28,12 @@ export default function RustReadingsArchive() {
   const groups: FilterGroup<string>[] = [
     {
       id: 'status',
-      label: 'Estado',
+      label: 'Status',
       value: status,
       options: [
-        { value: 'all', label: 'Todas' },
-        { value: 'pending', label: 'Pendientes' },
-        { value: 'read', label: 'Leídas' },
+        { value: 'all', label: 'All' },
+        { value: 'pending', label: 'Pending' },
+        { value: 'read', label: 'Read' },
       ],
       onChange: (v) => setStatus(v as StatusFilter),
     },
@@ -41,15 +41,15 @@ export default function RustReadingsArchive() {
 
   const emptyMessage =
     status === 'read' && filtered.length === 0
-      ? 'No hay lecturas leídas aún.'
-      : 'No hay lecturas que coincidan con estos filtros.';
+      ? 'No readings marked as read yet.'
+      : 'No readings match these filters.';
 
   return (
     <div>
       <Breadcrumb
         items={[
-          { label: 'Inicio', to: '/' },
-          { label: 'Archivo' },
+          { label: 'Home', to: '/' },
+          { label: 'Archive' },
           { label: 'Rust Readings' },
         ]}
       />

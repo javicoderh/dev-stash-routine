@@ -22,12 +22,6 @@ export default function Home() {
 
       <hr className="border-border" />
 
-      <section id="business-ideas">
-        <BusinessIdeasList />
-      </section>
-
-      <hr className="border-border" />
-
       <section id="ai-tips">
         <AiTipsList />
       </section>
@@ -40,10 +34,10 @@ export default function Home() {
       >
         <div className="lg:col-span-2">
           <div className="mb-5 flex items-center gap-3">
-            <MonoLabel>Briefing de hoy</MonoLabel>
+            <MonoLabel>Today's briefing</MonoLabel>
             {isStale && briefing && (
               <span className="font-mono text-[11px] text-accent-rust">
-                · mostrando {formatDateLong(briefing.date)}
+                · showing {formatDateLong(briefing.date)}
               </span>
             )}
           </div>
@@ -66,7 +60,7 @@ export default function Home() {
                   className="inline-flex items-center gap-1.5 text-sm text-accent-link
                              hover:text-accent-primary transition-colors"
                 >
-                  Ver todas las news <ArrowRight className="w-3.5 h-3.5" />
+                  View all news <ArrowRight className="w-3.5 h-3.5" />
                 </RouterLink>
               </div>
             </>
@@ -76,6 +70,12 @@ export default function Home() {
         <div id="rust-tasks" className="lg:col-span-1">
           <RustTasksAside />
         </div>
+      </section>
+
+      <hr className="border-border" />
+
+      <section id="business-ideas">
+        <BusinessIdeasList />
       </section>
 
       <hr className="border-border" />
@@ -97,10 +97,10 @@ function EmptyBriefing() {
   return (
     <div className="rounded-2xl border border-dashed border-border bg-bg-surface/50 p-10 text-center">
       <p className="font-display text-lg text-text-primary">
-        El briefing de hoy se está preparando.
+        Today's briefing is being prepared.
       </p>
       <p className="text-sm text-text-secondary mt-1">
-        Volvé en unos minutos.
+        Check back in a few minutes.
       </p>
     </div>
   );

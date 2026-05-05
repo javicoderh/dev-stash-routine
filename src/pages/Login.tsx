@@ -30,7 +30,7 @@ export default function Login() {
       saveEmail.mutate({ uid, email: trimmed });
       navigate('/', { replace: true });
     } catch {
-      setError('No se pudo acceder. Revisá tu conexión e intentá de nuevo.');
+      setError('Could not sign in. Check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -43,7 +43,7 @@ export default function Login() {
           Personal Dev Stash
         </h1>
         <p className="text-sm text-text-secondary mb-6">
-          Ingresá tu email para continuar.
+          Enter your email to continue.
         </p>
 
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
@@ -76,7 +76,7 @@ export default function Login() {
           )}
 
           <Button type="submit" disabled={submitting} className="w-full">
-            {submitting ? 'Entrando…' : 'Entrar'}
+            {submitting ? 'Signing in…' : 'Enter'}
           </Button>
         </form>
       </div>

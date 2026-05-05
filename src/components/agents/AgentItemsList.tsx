@@ -13,7 +13,7 @@ export function AgentItemsList() {
         <h2 className="font-display text-2xl font-medium text-text-primary">
           Agent Items
         </h2>
-        <span className="text-xs text-text-muted">Últimos 7 días</span>
+        <span className="text-xs text-text-muted">Last 7 days</span>
       </div>
 
       {isLoading ? (
@@ -23,7 +23,7 @@ export function AgentItemsList() {
           ))}
         </div>
       ) : !data || data.length === 0 ? (
-        <p className="text-sm text-text-secondary">Sin items recientes.</p>
+        <p className="text-sm text-text-secondary">No recent items.</p>
       ) : (
         <ul>
           {data.map((item) => (
@@ -37,7 +37,7 @@ export function AgentItemsList() {
         className="mt-6 inline-flex items-center gap-1.5 text-sm text-accent-link
                    hover:text-accent-primary transition-colors"
       >
-        Histórico completo <ArrowRight className="w-3.5 h-3.5" />
+        Full archive <ArrowRight className="w-3.5 h-3.5" />
       </RouterLink>
     </section>
   );

@@ -33,26 +33,26 @@ export default function RustTasksArchive() {
   const groups: FilterGroup<string>[] = [
     {
       id: 'status',
-      label: 'Estado',
+      label: 'Status',
       value: status,
       options: [
-        { value: 'all', label: 'Todas' },
-        { value: 'pending', label: 'Pendientes' },
-        { value: 'read', label: 'Leídas' },
+        { value: 'all', label: 'All' },
+        { value: 'pending', label: 'Pending' },
+        { value: 'read', label: 'Read' },
       ],
       onChange: (v) => setStatus(v as StatusFilter),
     },
     {
       id: 'format',
-      label: 'Formato',
+      label: 'Format',
       value: format,
       options: [
-        { value: 'all', label: 'Todas' },
-        { value: 'patron', label: 'Patrón' },
-        { value: 'teoria', label: 'Teoría' },
-        { value: 'aplicacion_real', label: 'Aplicación' },
-        { value: 'caso_real', label: 'Caso real' },
-        { value: 'ecosistema', label: 'Ecosistema' },
+        { value: 'all', label: 'All' },
+        { value: 'patron', label: 'Pattern' },
+        { value: 'teoria', label: 'Theory' },
+        { value: 'aplicacion_real', label: 'Application' },
+        { value: 'caso_real', label: 'Real Case' },
+        { value: 'ecosistema', label: 'Ecosystem' },
       ],
       onChange: (v) => setFormat(v as FormatFilter),
     },
@@ -60,15 +60,15 @@ export default function RustTasksArchive() {
 
   const emptyMessage =
     status === 'read' && filtered.length === 0
-      ? 'No hay tasks leídas aún.'
-      : 'No hay tasks que coincidan con estos filtros.';
+      ? 'No tasks marked as read yet.'
+      : 'No tasks match these filters.';
 
   return (
     <div>
       <Breadcrumb
         items={[
-          { label: 'Inicio', to: '/' },
-          { label: 'Archivo' },
+          { label: 'Home', to: '/' },
+          { label: 'Archive' },
           { label: 'Rust Tasks' },
         ]}
       />

@@ -2,7 +2,7 @@ import { clsx } from 'clsx';
 import type { AgentItemType, AiTipCategory, ItemStatus, RustTaskFormatType } from '@/types/firestore';
 
 export function StatusBadge({ status }: { status: ItemStatus }) {
-  const label = status === 'read' ? 'Leído' : 'Pendiente';
+  const label = status === 'read' ? 'Read' : 'Pending';
   return (
     <span
       className={clsx(
@@ -25,11 +25,11 @@ export function StatusBadge({ status }: { status: ItemStatus }) {
 }
 
 const formatLabels: Record<RustTaskFormatType, string> = {
-  patron: 'Patrón',
-  teoria: 'Teoría',
-  aplicacion_real: 'Aplicación real',
-  caso_real: 'Caso real',
-  ecosistema: 'Ecosistema',
+  patron: 'Pattern',
+  teoria: 'Theory',
+  aplicacion_real: 'Real Application',
+  caso_real: 'Real Case',
+  ecosistema: 'Ecosystem',
 };
 
 const formatColors: Record<RustTaskFormatType, string> = {
@@ -61,7 +61,7 @@ export function formatTypeLabel(f: RustTaskFormatType): string {
 const agentTypeLabels: Record<AgentItemType, string> = {
   news: 'News',
   changelog: 'Changelog',
-  pattern: 'Patrón',
+  pattern: 'Pattern',
 };
 
 const agentTypeColors: Record<AgentItemType, string> = {
@@ -85,12 +85,12 @@ export function AgentTypeBadge({ type }: { type: AgentItemType }) {
 }
 
 const aiTipCategoryLabels: Record<AiTipCategory, string> = {
-  productividad: 'Productividad',
-  escritura: 'Escritura',
-  estudio: 'Estudio',
-  trabajo: 'Trabajo',
-  vida_diaria: 'Vida diaria',
-  investigacion: 'Investigación',
+  productividad: 'Productivity',
+  escritura: 'Writing',
+  estudio: 'Study',
+  trabajo: 'Work',
+  vida_diaria: 'Daily life',
+  investigacion: 'Research',
 };
 
 const aiTipCategoryColors: Record<AiTipCategory, string> = {

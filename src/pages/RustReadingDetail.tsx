@@ -22,7 +22,7 @@ export default function RustReadingDetail() {
     <div className="max-w-[720px] mx-auto">
       <Breadcrumb
         items={[
-          { label: 'Inicio', to: '/' },
+          { label: 'Home', to: '/' },
           { label: 'Rust Readings', to: '/archive/rust-readings' },
           { label: reading.title },
         ]}
@@ -42,7 +42,7 @@ export default function RustReadingDetail() {
             size="lg"
           />
           <span className="text-sm text-text-secondary">
-            {status === 'read' ? 'Leído' : 'Pendiente'}
+            {status === 'read' ? 'Read' : 'Pending'}
           </span>
         </div>
       </header>
@@ -52,7 +52,7 @@ export default function RustReadingDetail() {
       {reading.sources && reading.sources.length > 0 && (
         <section className="mt-10 pt-8 border-t border-border">
           <h2 className="font-display text-lg font-medium text-text-primary mb-3">
-            Fuentes
+            Sources
           </h2>
           <ul className="space-y-1.5">
             {reading.sources.map((src) => (

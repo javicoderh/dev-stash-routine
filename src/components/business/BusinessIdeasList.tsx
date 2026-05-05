@@ -11,9 +11,9 @@ export function BusinessIdeasList() {
     <section>
       <div className="flex items-baseline justify-between mb-5">
         <h2 className="font-display text-2xl font-medium text-text-primary">
-          Idea de negocio
+          Business Ideas
         </h2>
-        <span className="text-xs text-text-muted">Últimos 7 días</span>
+        <span className="text-xs text-text-muted">Last 7 days</span>
       </div>
 
       {isLoading ? (
@@ -23,7 +23,7 @@ export function BusinessIdeasList() {
           ))}
         </div>
       ) : !data || data.length === 0 ? (
-        <p className="text-sm text-text-secondary">Sin ideas recientes.</p>
+        <p className="text-sm text-text-secondary">No recent ideas.</p>
       ) : (
         <ul>
           {data.map((idea) => (
@@ -37,7 +37,7 @@ export function BusinessIdeasList() {
         className="mt-6 inline-flex items-center gap-1.5 text-sm text-accent-link
                    hover:text-accent-primary transition-colors"
       >
-        Histórico completo <ArrowRight className="w-3.5 h-3.5" />
+        Full archive <ArrowRight className="w-3.5 h-3.5" />
       </RouterLink>
     </section>
   );

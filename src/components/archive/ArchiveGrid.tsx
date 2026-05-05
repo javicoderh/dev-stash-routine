@@ -43,7 +43,7 @@ export function ArchiveGrid<T extends Datelike>({
   items,
   order,
   renderCard,
-  emptyMessage = 'No hay items que coincidan con estos filtros.',
+  emptyMessage = 'No items match these filters.',
 }: Props<T>) {
   if (items.length === 0) {
     return (

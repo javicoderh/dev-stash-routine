@@ -41,33 +41,33 @@ export default function AgentItemsArchive() {
   const groups: FilterGroup<string>[] = [
     {
       id: 'status',
-      label: 'Estado',
+      label: 'Status',
       value: status,
       options: [
-        { value: 'all', label: 'Todos' },
-        { value: 'pending', label: 'Pendientes' },
-        { value: 'read', label: 'Leídos' },
+        { value: 'all', label: 'All' },
+        { value: 'pending', label: 'Pending' },
+        { value: 'read', label: 'Read' },
       ],
       onChange: (v) => setStatus(v as StatusFilter),
     },
     {
       id: 'type',
-      label: 'Tipo',
+      label: 'Type',
       value: type,
       options: [
-        { value: 'all', label: 'Todos' },
+        { value: 'all', label: 'All' },
         { value: 'news', label: 'News' },
         { value: 'changelog', label: 'Changelog' },
-        { value: 'pattern', label: 'Patrón' },
+        { value: 'pattern', label: 'Pattern' },
       ],
       onChange: (v) => setType(v as TypeFilter),
     },
     {
       id: 'agent',
-      label: 'Agente',
+      label: 'Agent',
       value: agentName,
       options: [
-        { value: 'all', label: 'Todos' },
+        { value: 'all', label: 'All' },
         ...agentNames.map((n) => ({ value: n, label: n })),
       ],
       onChange: (v) => setAgentName(v),
@@ -78,8 +78,8 @@ export default function AgentItemsArchive() {
     <div>
       <Breadcrumb
         items={[
-          { label: 'Inicio', to: '/' },
-          { label: 'Archivo' },
+          { label: 'Home', to: '/' },
+          { label: 'Archive' },
           { label: 'Agent Items' },
         ]}
       />
@@ -100,7 +100,7 @@ export default function AgentItemsArchive() {
           items={filtered}
           order={order}
           renderCard={(item) => <AgentItemArchiveCard key={item.id} item={item} />}
-          emptyMessage="No hay items que coincidan con estos filtros."
+          emptyMessage="No items match these filters."
         />
       )}
     </div>

@@ -5,17 +5,17 @@ export default function NotFound() {
     <div className="min-h-[60vh] flex flex-col items-center justify-center text-center">
       <span className="font-mono text-xs text-text-muted tracking-wider">404</span>
       <h1 className="mt-2 font-display text-3xl font-semibold text-text-primary">
-        No encontramos esta página.
+        Page not found.
       </h1>
       <p className="mt-2 text-text-secondary">
-        Puede que el link haya cambiado o que el contenido ya no exista.
+        The link may have changed or the content no longer exists.
       </p>
       <RouterLink
         to="/"
         className="mt-6 text-accent-link hover:text-accent-primary underline
                    underline-offset-4 decoration-accent-link/40"
       >
-        Volver al inicio
+        Back to home
       </RouterLink>
     </div>
   );
@@ -24,22 +24,22 @@ export default function NotFound() {
 export function NotFoundInline({ kind }: { kind: 'task' | 'reading' | 'agent' | 'tip' | 'businessIdea' }) {
   const label =
     kind === 'task' ? 'task'
-    : kind === 'reading' ? 'lectura'
+    : kind === 'reading' ? 'reading'
     : kind === 'agent' ? 'agent item'
     : kind === 'tip' ? 'tip'
-    : 'idea de negocio';
+    : 'business idea';
   return (
     <div className="min-h-[50vh] flex flex-col items-center justify-center text-center">
       <span className="font-mono text-xs text-text-muted tracking-wider">404</span>
       <h1 className="mt-2 font-display text-2xl font-semibold text-text-primary">
-        No encontramos esta {label}.
+        This {label} was not found.
       </h1>
       <RouterLink
         to="/"
         className="mt-4 text-accent-link hover:text-accent-primary underline
                    underline-offset-4 decoration-accent-link/40"
       >
-        Volver al inicio
+        Back to home
       </RouterLink>
     </div>
   );

@@ -23,7 +23,7 @@ export function QuickNav() {
   return (
     <nav aria-label="Secciones del briefing">
       <p className="font-mono text-[11px] text-text-muted uppercase tracking-widest mb-3">
-        Ir a
+        Jump to
       </p>
       <div className="flex flex-wrap gap-2">
         {SECTIONS.map(({ id, label, icon: Icon }) => (

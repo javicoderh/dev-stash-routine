@@ -22,16 +22,16 @@ export default function NewsArchive() {
     <div>
       <Breadcrumb
         items={[
-          { label: 'Inicio', to: '/' },
-          { label: 'Archivo' },
+          { label: 'Home', to: '/' },
+          { label: 'Archive' },
           { label: 'News' },
         ]}
       />
       <h1 className="font-display text-4xl font-semibold text-text-primary mt-3 mb-2">
-        Archivo de News
+        News Archive
       </h1>
       <p className="text-text-secondary mb-6">
-        Todas las noticias que han pasado por los briefings diarios.
+        All news items from the daily briefings.
       </p>
 
       <ArchiveFilters
@@ -52,7 +52,7 @@ export default function NewsArchive() {
               item={item}
             />
           )}
-          emptyMessage="No hay news aún."
+          emptyMessage="No news yet."
         />
       )}
     </div>
