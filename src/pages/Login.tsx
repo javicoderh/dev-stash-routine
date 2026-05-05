@@ -1,8 +1,9 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useSaveVisitorEmail } from '@/lib/queries';
 import { Button } from '@/components/ui/Button';
+import { FullScreenLoader } from '@/components/ui/FullScreenLoader';
 
 const VISITOR_EMAIL_KEY = 'dev-stash:visitor-email';
 
@@ -12,11 +13,30 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [autoSigningIn, setAutoSigningIn] = useState(false);
   const saveEmail = useSaveVisitorEmail();
+  const attempted = useRef(false);
 
   useEffect(() => {
-    if (user) navigate('/', { replace: true });
-  }, [user, navigate]);
+    if (user) {
+      navigate('/', { replace: true });
+      return;
+    }
+    if (attempted.current) return;
+    attempted.current = true;
+
+    const stored = localStorage.getItem(VISITOR_EMAIL_KEY);
+    if (!stored) return;
+
+    setAutoSigningIn(true);
+    signInAnon()
+      .then(() => navigate('/', { replace: true }))
+      .catch(() => {
+        // Auto sign-in failed — clear stored email and show the form
+        localStorage.removeItem(VISITOR_EMAIL_KEY);
+        setAutoSigningIn(false);
+      });
+  }, [user, navigate, signInAnon]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -35,6 +55,8 @@ export default function Login() {
       setSubmitting(false);
     }
   }
+
+  if (autoSigningIn) return <FullScreenLoader />;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 bg-bg-base">
@@ -61,7 +83,7 @@ export default function Login() {
               className="w-full rounded-xl border border-border bg-bg-base px-3 py-2.5
                          text-text-primary placeholder:text-text-muted
                          focus:border-accent-primary focus:outline-none transition-colors"
-              placeholder="tu@email.com"
+              placeholder="you@email.com"
             />
           </label>
 
