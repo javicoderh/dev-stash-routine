@@ -4,24 +4,29 @@ import {
   deleteDoc,
   doc,
   getDocs,
-  limit,
-  orderBy,
-  query,
   serverTimestamp,
   setDoc,
+  Timestamp,
   updateDoc,
 } from 'firebase/firestore';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/firebase';
 
-export function useAdminCollection(collectionName: string) {
+function toSortValue(v: unknown): number {
+  if (v instanceof Timestamp) return v.toMillis();
+  if (typeof v === 'string') return v < 'z' ? v.charCodeAt(0) : 0;
+  return 0;
+}
+
+export function useAdminCollection(collectionName: string, sortField = 'date') {
   return useQuery({
     queryKey: ['admin', collectionName],
     staleTime: 0,
     queryFn: async (): Promise<Record<string, unknown>[]> => {
-      const q = query(collection(db, collectionName), orderBy('date', 'desc'), limit(50));
-      const snap = await getDocs(q);
-      return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      const snap = await getDocs(collection(db, collectionName));
+      const docs: Record<string, unknown>[] = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      docs.sort((a, b) => toSortValue(b[sortField]) - toSortValue(a[sortField]));
+      return docs.slice(0, 50);
     },
   });
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useSaveVisitorEmail } from '@/lib/queries';
 import { Button } from '@/components/ui/Button';
@@ -10,12 +10,17 @@ const VISITOR_EMAIL_KEY = 'dev-stash:visitor-email';
 export default function Login() {
   const { user, signInAnon } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [autoSigningIn, setAutoSigningIn] = useState(false);
   const saveEmail = useSaveVisitorEmail();
   const attempted = useRef(false);
+
+  const utmSource = searchParams.get('utm_source') ?? searchParams.get('ref') ?? 'direct';
+  const utmMedium = searchParams.get('utm_medium');
+  const utmCampaign = searchParams.get('utm_campaign');
 
   useEffect(() => {
     if (user) {
@@ -47,7 +52,7 @@ export default function Login() {
     try {
       const uid = await signInAnon();
       localStorage.setItem(VISITOR_EMAIL_KEY, trimmed);
-      saveEmail.mutate({ uid, email: trimmed });
+      saveEmail.mutate({ uid, email: trimmed, source: utmSource, utmMedium, utmCampaign });
       navigate('/', { replace: true });
     } catch {
       setError('Could not sign in. Check your connection and try again.');

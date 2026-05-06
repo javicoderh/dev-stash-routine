@@ -100,6 +100,35 @@ export type AiTipCategory =
   | 'vida_diaria'
   | 'investigacion';
 
+export type ArticleCategory =
+  | 'mvp'
+  | 'automatizacion'
+  | 'contratacion'
+  | 'ia-aplicada'
+  | 'estrategia';
+
+export type ArticleRelatedService =
+  | 'diagnostico'
+  | 'mvp'
+  | 'automatizacion-ia'
+  | null;
+
+export type Article = {
+  slug: string;
+  title: string;
+  metaDescription: string;
+  ogImage: string | null;
+  content: string;
+  category: ArticleCategory;
+  keywords: string[];
+  publishedAt: Timestamp;
+  updatedAt: Timestamp;
+  author: string;
+  readingTime: string;
+  relatedServiceId: ArticleRelatedService;
+  published: boolean;
+};
+
 export type AiTip = {
   id: string;
   date: string;

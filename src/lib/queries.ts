@@ -8,12 +8,15 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  Timestamp,
+  where,
 } from 'firebase/firestore';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/firebase';
 import type {
   AgentItem,
   AiTip,
+  Article,
   Briefing,
   BusinessIdea,
   FlatNewsItem,
@@ -47,6 +50,9 @@ export const queryKeys = {
   recentAiTips: (limit: number) => ['aiTips', 'recent', limit] as const,
   aiTip: (id: string) => ['aiTips', 'byId', id] as const,
   allAiTips: ['aiTips', 'all'] as const,
+
+  allArticles: ['articles', 'all'] as const,
+  article: (slug: string) => ['articles', 'bySlug', slug] as const,
 };
 
 export function useLatestBriefing() {
@@ -349,10 +355,64 @@ export function useAllAiTips() {
   });
 }
 
+export function useAllArticles() {
+  return useQuery({
+    queryKey: queryKeys.allArticles,
+    staleTime: LIST_STALE,
+    queryFn: async (): Promise<Article[]> => {
+      // where('published','==',true) is required so Firestore security rules
+      // can verify access for anonymous users without a composite index.
+      // Sorting client-side avoids needing a composite index (published + publishedAt).
+      const q = query(collection(db, 'articles'), where('published', '==', true));
+      const snap = await getDocs(q);
+      return snap.docs
+        .map((d) => ({ slug: d.id, ...(d.data() as Omit<Article, 'slug'>) }))
+        .sort((a, b) => {
+          const at = a.publishedAt instanceof Timestamp ? a.publishedAt.toMillis() : 0;
+          const bt = b.publishedAt instanceof Timestamp ? b.publishedAt.toMillis() : 0;
+          return bt - at;
+        });
+    },
+  });
+}
+
+export function useArticle(slug: string | undefined) {
+  return useQuery({
+    queryKey: queryKeys.article(slug ?? '__missing__'),
+    enabled: !!slug,
+    staleTime: DETAIL_STALE,
+    queryFn: async (): Promise<Article | null> => {
+      if (!slug) return null;
+      const ref = doc(db, 'articles', slug);
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return null;
+      const data = snap.data() as Omit<Article, 'slug'>;
+      if (!data.published) return null;
+      return { slug: snap.id, ...data };
+    },
+  });
+}
+
+type VisitorPayload = {
+  uid: string;
+  email: string;
+  source?: string;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+};
+
 export function useSaveVisitorEmail() {
   return useMutation({
-    mutationFn: async ({ uid, email }: { uid: string; email: string }) => {
-      await setDoc(doc(db, 'visitors', email), { email, uid, createdAt: serverTimestamp() }, { merge: true });
+    mutationFn: async ({ uid, email, source, utmMedium, utmCampaign }: VisitorPayload) => {
+      const data: Record<string, unknown> = {
+        email,
+        uid,
+        source: source ?? 'direct',
+        createdAt: serverTimestamp(),
+      };
+      if (utmMedium) data.utmMedium = utmMedium;
+      if (utmCampaign) data.utmCampaign = utmCampaign;
+      await setDoc(doc(db, 'visitors', email), data, { merge: true });
     },
   });
 }

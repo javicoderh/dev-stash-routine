@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { LogOut, User as UserIcon } from 'lucide-react';
+import { LayoutDashboard, LogOut, User as UserIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { formatDateHeader, todayISO } from '@/lib/dates';
 
 export function Header() {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdminAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -41,6 +43,27 @@ export function Header() {
         </RouterLink>
 
         <div className="flex items-center gap-3">
+          <RouterLink
+            to="/servicios"
+            className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-xl
+                       border border-accent-primary/30 text-accent-primary text-xs font-medium
+                       hover:bg-accent-primary/10 transition-colors"
+          >
+            Servicios
+          </RouterLink>
+
+          {isAdmin && (
+            <RouterLink
+              to="/admin"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl
+                         border border-border text-text-secondary text-xs font-medium
+                         hover:bg-bg-alt hover:text-text-primary transition-colors"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5" />
+              Dashboard
+            </RouterLink>
+          )}
+
           <span className="hidden sm:inline font-mono text-xs text-text-secondary">
             {formatDateHeader(todayISO())}
           </span>

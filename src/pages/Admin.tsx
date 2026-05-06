@@ -6,6 +6,7 @@ import {
   ChevronDown,
   ChevronRight,
   ClipboardList,
+  FileText,
   Lightbulb,
   LogOut,
   Newspaper,
@@ -27,7 +28,7 @@ import { FullScreenLoader } from '@/components/ui/FullScreenLoader';
 
 // ─── Field / Collection config ────────────────────────────────────────────────
 
-type FieldType = 'text' | 'date' | 'textarea' | 'select' | 'sources' | 'json';
+type FieldType = 'text' | 'date' | 'textarea' | 'select' | 'sources' | 'json' | 'boolean';
 
 type FieldConfig = {
   key: string;
@@ -42,6 +43,7 @@ type CollectionConfig = {
   label: string;
   icon: LucideIcon;
   useDocIdFromField?: string;
+  sortField?: string;
   hasStatus?: boolean;
   fields: FieldConfig[];
 };
@@ -163,6 +165,53 @@ const COLLECTIONS: CollectionConfig[] = [
       { key: 'sources', label: 'Sources', type: 'sources' },
     ],
   },
+  {
+    collectionName: 'articles',
+    label: 'Articles',
+    icon: FileText,
+    useDocIdFromField: 'slug',
+    sortField: 'publishedAt',
+    fields: [
+      { key: 'slug', label: 'Slug (doc ID, kebab-case)', type: 'text', required: true },
+      { key: 'title', label: 'Title', type: 'text', required: true },
+      { key: 'metaDescription', label: 'Meta Description (140-160 chars)', type: 'textarea', required: true },
+      { key: 'ogImage', label: 'OG Image URL', type: 'text' },
+      { key: 'content', label: 'Content (Markdown)', type: 'textarea', required: true },
+      {
+        key: 'category',
+        label: 'Category',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'mvp', label: 'MVP & Producto' },
+          { value: 'automatizacion', label: 'Automatización' },
+          { value: 'contratacion', label: 'Contratar Tech' },
+          { value: 'ia-aplicada', label: 'IA Aplicada' },
+          { value: 'estrategia', label: 'Estrategia' },
+        ],
+      },
+      { key: 'keywords', label: 'Keywords (one per line)', type: 'sources' },
+      { key: 'readingTime', label: 'Reading Time (ej: "6 min")', type: 'text', required: true },
+      { key: 'author', label: 'Author', type: 'text', required: true },
+      {
+        key: 'relatedServiceId',
+        label: 'Related Service',
+        type: 'select',
+        options: [
+          { value: '', label: '— ninguno —' },
+          { value: 'diagnostico', label: 'Diagnóstico Tech' },
+          { value: 'mvp', label: 'MVP / Desarrollo' },
+          { value: 'automatizacion-ia', label: 'Automatización con IA' },
+        ],
+      },
+      {
+        key: 'published',
+        label: 'Publicado',
+        type: 'boolean',
+        required: true,
+      },
+    ],
+  },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -178,6 +227,8 @@ function itemToFormValues(
       values[field.key] = Array.isArray(raw) ? (raw as string[]).join('\n') : '';
     } else if (field.type === 'json') {
       values[field.key] = raw != null ? JSON.stringify(raw, null, 2) : '';
+    } else if (field.type === 'boolean') {
+      values[field.key] = raw === true ? 'true' : 'false';
     } else {
       values[field.key] = raw != null ? String(raw) : '';
     }
@@ -204,6 +255,8 @@ function formValuesToData(
       } catch {
         data[field.key] = raw;
       }
+    } else if (field.type === 'boolean') {
+      data[field.key] = raw === 'true';
     } else if (field.type === 'textarea') {
       data[field.key] = raw || null;
     } else {
@@ -257,7 +310,16 @@ function ItemForm({
             {field.label}
             {field.required && ' *'}
           </span>
-          {field.type === 'select' ? (
+          {field.type === 'boolean' ? (
+            <select
+              value={values[field.key] ?? 'false'}
+              onChange={(e) => set(field.key, e.target.value)}
+              className={inputCls}
+            >
+              <option value="false">No publicado</option>
+              <option value="true">Publicado</option>
+            </select>
+          ) : field.type === 'select' ? (
             <select
               value={values[field.key] ?? ''}
               onChange={(e) => set(field.key, e.target.value)}
@@ -335,7 +397,7 @@ function SectionPanel({ config }: { config: CollectionConfig }) {
   const [formError, setFormError] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  const { data: items = [], isLoading } = useAdminCollection(config.collectionName);
+  const { data: items = [], isLoading } = useAdminCollection(config.collectionName, config.sortField);
   const createMutation = useAdminCreate(config.collectionName);
   const updateMutation = useAdminUpdate(config.collectionName);
   const deleteMutation = useAdminDelete(config.collectionName);

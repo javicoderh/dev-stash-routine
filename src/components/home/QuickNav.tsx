@@ -1,9 +1,10 @@
-import { Bot, BookOpen, ClipboardList, Lightbulb, Newspaper, Zap } from 'lucide-react';
+import { Bot, BookOpen, ClipboardList, FileText, Lightbulb, Newspaper, Zap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 type Section = { id: string; label: string; icon: LucideIcon };
 
 const SECTIONS: Section[] = [
+  { id: 'blog',           label: 'Artículos',        icon: FileText },
   { id: 'business-ideas', label: 'Business Ideas', icon: Lightbulb },
   { id: 'ai-tips',        label: 'AI Tips',         icon: Zap },
   { id: 'news',           label: 'Briefing',         icon: Newspaper },
