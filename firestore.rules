@@ -55,6 +55,17 @@ service cloud.firestore {
     // Lectura abierta para crawlers cuando published == true.
     // Drafts (published == false) solo visibles para bot/admin.
 
+    // ────────── Cola de artículos pendientes (input para la rutina) ──────────
+    // Admin crea/edita/borra. Bot solo lee y actualiza status (no crea ni borra).
+    // Cero acceso público.
+
+    match /pendingArticles/{id} {
+      allow read:   if isAdmin() || isBot();
+      allow create: if isAdmin();
+      allow update: if isAdmin() || isBot();
+      allow delete: if isAdmin();
+    }
+
     match /articles/{slug} {
       // Split into multiple allow clauses so Firestore's evaluator can prove
       // unconditional access for admin/bot LIST queries without requiring

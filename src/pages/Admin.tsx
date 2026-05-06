@@ -7,6 +7,7 @@ import {
   ChevronRight,
   ClipboardList,
   FileText,
+  Inbox,
   Lightbulb,
   LogOut,
   Newspaper,
@@ -36,6 +37,7 @@ type FieldConfig = {
   type: FieldType;
   options?: { value: string; label: string }[];
   required?: boolean;
+  defaultValue?: string;
 };
 
 type CollectionConfig = {
@@ -166,6 +168,128 @@ const COLLECTIONS: CollectionConfig[] = [
     ],
   },
   {
+    collectionName: 'pendingArticles',
+    label: 'Pending Articles (cola para la rutina)',
+    icon: Inbox,
+    sortField: 'createdAt',
+    fields: [
+      {
+        key: 'objective',
+        label: 'Objective (REQUERIDO)',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'vender_producto', label: 'Vender producto' },
+          { value: 'generar_leads', label: 'Generar leads' },
+          { value: 'educar_audiencia', label: 'Educar audiencia' },
+          { value: 'demostrar_expertise', label: 'Demostrar expertise' },
+          { value: 'aumentar_engagement', label: 'Aumentar engagement' },
+          { value: 'generar_confianza', label: 'Generar confianza' },
+          { value: 'responder_objecion', label: 'Responder objeción' },
+        ],
+      },
+      {
+        key: 'target',
+        label: 'Target audience (REQUERIDO)',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'founders_pymes', label: 'Founders & PyMEs' },
+          { value: 'emprendedores', label: 'Emprendedores / solopreneurs' },
+          { value: 'trabajadores', label: 'Trabajadores corporativos' },
+          { value: 'freelancers', label: 'Freelancers creativos/técnicos' },
+          { value: 'personas_general', label: 'Personas (uso general)' },
+          { value: 'estudiantes', label: 'Estudiantes' },
+        ],
+      },
+      { key: 'topic', label: 'Topic — 1-2 frases del qué (REQUERIDO)', type: 'textarea', required: true },
+      { key: 'angle', label: 'Angle — tesis única del artículo (REQUERIDO)', type: 'textarea', required: true },
+      {
+        key: 'category',
+        label: 'Category (REQUERIDO)',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'mvp', label: 'MVP & Producto' },
+          { value: 'automatizacion', label: 'Automatización' },
+          { value: 'contratacion', label: 'Contratar Tech' },
+          { value: 'ia-aplicada', label: 'IA Aplicada' },
+          { value: 'estrategia', label: 'Estrategia' },
+        ],
+      },
+      { key: 'keyPoints', label: 'Key points — 3-5 must-have (uno por línea)', type: 'sources' },
+      { key: 'sources', label: 'Sources URLs a citar (uno por línea)', type: 'sources' },
+      {
+        key: 'externalResourceType',
+        label: 'External resource — type (opcional)',
+        type: 'select',
+        options: [
+          { value: '', label: '— ninguno —' },
+          { value: 'podcast', label: 'Podcast' },
+          { value: 'video', label: 'Video' },
+          { value: 'document', label: 'Documento' },
+          { value: 'tool', label: 'Herramienta' },
+        ],
+      },
+      { key: 'externalResourceUrl', label: 'External resource — URL', type: 'text' },
+      { key: 'externalResourceDescription', label: 'External resource — description (anchor text del CTA)', type: 'text' },
+      {
+        key: 'relatedServiceId',
+        label: 'Related Service',
+        type: 'select',
+        options: [
+          { value: '', label: '— ninguno —' },
+          { value: 'diagnostico', label: 'Diagnóstico Tech' },
+          { value: 'mvp', label: 'MVP / Desarrollo' },
+          { value: 'automatizacion-ia', label: 'Automatización con IA' },
+        ],
+      },
+      {
+        key: 'tone',
+        label: 'Tone — opcional, override del auto-elegido',
+        type: 'select',
+        options: [
+          { value: '', label: '— auto-elegir según objective —' },
+          { value: 'cientifico', label: 'Científico' },
+          { value: 'formal', label: 'Formal' },
+          { value: 'semi_formal', label: 'Semi-formal' },
+          { value: 'anecdotico', label: 'Anecdótico' },
+          { value: 'didactico', label: 'Didáctico' },
+          { value: 'provocativo', label: 'Provocativo' },
+          { value: 'poetico', label: 'Poético' },
+        ],
+      },
+      {
+        key: 'desiredLength',
+        label: 'Desired length',
+        type: 'select',
+        defaultValue: 'medium',
+        options: [
+          { value: 'short', label: 'Short (~3 min, 400-500 palabras)' },
+          { value: 'medium', label: 'Medium (~5 min, 700-900 palabras)' },
+          { value: 'long', label: 'Long (~8-10 min, 1200-1500 palabras)' },
+        ],
+      },
+      { key: 'ogImageUrl', label: 'OG Image URL (opcional, override)', type: 'text' },
+      { key: 'desiredSlug', label: 'Desired slug (opcional, override)', type: 'text' },
+      {
+        key: 'status',
+        label: 'Status — gestionado por la rutina',
+        type: 'select',
+        required: true,
+        defaultValue: 'pending',
+        options: [
+          { value: 'pending', label: 'Pending (en cola)' },
+          { value: 'processing', label: 'Processing (rutina trabajando)' },
+          { value: 'completed', label: 'Completed (artículo creado)' },
+          { value: 'failed', label: 'Failed (ver errorMessage)' },
+        ],
+      },
+      { key: 'resultArticleSlug', label: 'Result article slug (gestionado)', type: 'text' },
+      { key: 'errorMessage', label: 'Error message (gestionado)', type: 'textarea' },
+    ],
+  },
+  {
     collectionName: 'articles',
     label: 'Articles',
     icon: FileText,
@@ -188,6 +312,20 @@ const COLLECTIONS: CollectionConfig[] = [
           { value: 'contratacion', label: 'Contratar Tech' },
           { value: 'ia-aplicada', label: 'IA Aplicada' },
           { value: 'estrategia', label: 'Estrategia' },
+        ],
+      },
+      {
+        key: 'target',
+        label: 'Target audience',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'founders_pymes', label: 'Founders & PyMEs' },
+          { value: 'emprendedores', label: 'Emprendedores / solopreneurs' },
+          { value: 'trabajadores', label: 'Trabajadores corporativos' },
+          { value: 'freelancers', label: 'Freelancers creativos/técnicos' },
+          { value: 'personas_general', label: 'Personas (uso general)' },
+          { value: 'estudiantes', label: 'Estudiantes' },
         ],
       },
       { key: 'keywords', label: 'Keywords (one per line)', type: 'sources' },
@@ -406,7 +544,11 @@ function SectionPanel({ config }: { config: CollectionConfig }) {
     createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
 
   function startCreate() {
-    setFormValues({});
+    const defaults: Record<string, string> = {};
+    for (const field of config.fields) {
+      if (field.defaultValue !== undefined) defaults[field.key] = field.defaultValue;
+    }
+    setFormValues(defaults);
     setFormError(null);
     setMode('creating');
   }

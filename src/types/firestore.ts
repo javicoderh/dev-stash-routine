@@ -113,6 +113,14 @@ export type ArticleRelatedService =
   | 'automatizacion-ia'
   | null;
 
+export type ArticleTarget =
+  | 'founders_pymes'
+  | 'emprendedores'
+  | 'trabajadores'
+  | 'freelancers'
+  | 'personas_general'
+  | 'estudiantes';
+
 export type Article = {
   slug: string;
   title: string;
@@ -120,6 +128,7 @@ export type Article = {
   ogImage: string | null;
   content: string;
   category: ArticleCategory;
+  target: ArticleTarget;
   keywords: string[];
   publishedAt: Timestamp;
   updatedAt: Timestamp;
