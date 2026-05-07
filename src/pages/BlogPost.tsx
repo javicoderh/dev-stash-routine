@@ -52,10 +52,29 @@ export default function BlogPost() {
   return (
     <>
       <PageMeta
-        title={article.title}
+        title={article.seoTitle ?? article.title}
         description={article.metaDescription}
         ogImage={article.ogImage ?? undefined}
         canonical={`https://dev-stash-f308c.web.app/blog/${article.slug}`}
+        ogTitle={article.ogTitle}
+        ogDescription={article.ogDescription}
+        twitterCard={article.twitterCard}
+        structuredDataType={article.structuredDataType}
+        crawlPolicy={article.crawlPolicy}
+        aiCrawlPolicy={article.aiCrawlPolicy}
+        article={{
+          headline: article.title,
+          description: article.metaDescription,
+          image: article.ogImage,
+          datePublished: article.publishedAt
+            ? new Date((article.publishedAt as unknown as { seconds: number }).seconds * 1000).toISOString()
+            : new Date().toISOString(),
+          dateModified: article.updatedAt
+            ? new Date((article.updatedAt as unknown as { seconds: number }).seconds * 1000).toISOString()
+            : new Date().toISOString(),
+          author: article.author,
+          keywords: article.keywords,
+        }}
       />
 
       <div className="min-h-screen bg-bg-base">

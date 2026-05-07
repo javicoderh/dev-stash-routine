@@ -200,6 +200,7 @@ const COLLECTIONS: CollectionConfig[] = [
           { value: 'freelancers', label: 'Freelancers creativos/técnicos' },
           { value: 'personas_general', label: 'Personas (uso general)' },
           { value: 'estudiantes', label: 'Estudiantes' },
+          { value: 'developers', label: 'Developers / engineers' },
         ],
       },
       { key: 'topic', label: 'Topic — 1-2 frases del qué (REQUERIDO)', type: 'textarea', required: true },
@@ -215,6 +216,8 @@ const COLLECTIONS: CollectionConfig[] = [
           { value: 'contratacion', label: 'Contratar Tech' },
           { value: 'ia-aplicada', label: 'IA Aplicada' },
           { value: 'estrategia', label: 'Estrategia' },
+          { value: 'craft', label: 'Craft (oficio, arquitectura, patterns, identidad)' },
+          { value: 'cultura', label: 'Cultura (industria, carreras, atención, dinámicas)' },
         ],
       },
       { key: 'keyPoints', label: 'Key points — 3-5 must-have (uno por línea)', type: 'sources' },
@@ -272,6 +275,59 @@ const COLLECTIONS: CollectionConfig[] = [
       },
       { key: 'ogImageUrl', label: 'OG Image URL (opcional, override)', type: 'text' },
       { key: 'desiredSlug', label: 'Desired slug (opcional, override)', type: 'text' },
+      // ── SEO core ──
+      { key: 'focusKeyword', label: 'Focus keyword (REQUERIDO, el #1 a rankear)', type: 'text', required: true },
+      { key: 'seoTitle', label: 'SEO Title (opcional, override 60-65 chars)', type: 'text' },
+      // ── Open Graph / social ──
+      { key: 'ogTitle', label: 'OG Title (opcional override social)', type: 'text' },
+      { key: 'ogDescription', label: 'OG Description (opcional override social)', type: 'textarea' },
+      {
+        key: 'twitterCard',
+        label: 'Twitter Card type',
+        type: 'select',
+        options: [
+          { value: '', label: '— auto (summary_large_image si hay imagen) —' },
+          { value: 'summary', label: 'summary' },
+          { value: 'summary_large_image', label: 'summary_large_image' },
+        ],
+      },
+      // ── Schema.org structured data ──
+      {
+        key: 'structuredDataType',
+        label: 'Structured data type (JSON-LD)',
+        type: 'select',
+        defaultValue: 'BlogPosting',
+        options: [
+          { value: 'BlogPosting', label: 'BlogPosting (default)' },
+          { value: 'TechArticle', label: 'TechArticle' },
+          { value: 'OpinionPiece', label: 'OpinionPiece' },
+          { value: 'NewsArticle', label: 'NewsArticle' },
+        ],
+      },
+      // ── Crawler diplomacy ──
+      {
+        key: 'crawlPolicy',
+        label: 'Crawl policy (Googlebot/Bingbot)',
+        type: 'select',
+        defaultValue: 'index',
+        options: [
+          { value: 'index', label: 'index (default)' },
+          { value: 'noindex', label: 'noindex' },
+        ],
+      },
+      {
+        key: 'aiCrawlPolicy',
+        label: 'AI Crawl policy (GPTBot, ClaudeBot, PerplexityBot)',
+        type: 'select',
+        defaultValue: 'allow',
+        options: [
+          { value: 'allow', label: 'allow (default)' },
+          { value: 'disallow', label: 'disallow' },
+        ],
+      },
+      // ── Internal discovery ──
+      { key: 'internalTags', label: 'Internal tags (taxonomía interna, uno por línea)', type: 'sources' },
+      { key: 'relatedSlugs', label: 'Related article slugs (cross-links manuales, uno por línea)', type: 'sources' },
       {
         key: 'status',
         label: 'Status — gestionado por la rutina',
@@ -312,6 +368,8 @@ const COLLECTIONS: CollectionConfig[] = [
           { value: 'contratacion', label: 'Contratar Tech' },
           { value: 'ia-aplicada', label: 'IA Aplicada' },
           { value: 'estrategia', label: 'Estrategia' },
+          { value: 'craft', label: 'Craft (oficio, arquitectura, patterns, identidad)' },
+          { value: 'cultura', label: 'Cultura (industria, carreras, atención, dinámicas)' },
         ],
       },
       {
@@ -326,6 +384,7 @@ const COLLECTIONS: CollectionConfig[] = [
           { value: 'freelancers', label: 'Freelancers creativos/técnicos' },
           { value: 'personas_general', label: 'Personas (uso general)' },
           { value: 'estudiantes', label: 'Estudiantes' },
+          { value: 'developers', label: 'Developers / engineers' },
         ],
       },
       { key: 'keywords', label: 'Keywords (one per line)', type: 'sources' },
@@ -342,6 +401,63 @@ const COLLECTIONS: CollectionConfig[] = [
           { value: 'automatizacion-ia', label: 'Automatización con IA' },
         ],
       },
+      // ── SEO core ──
+      { key: 'focusKeyword', label: 'Focus keyword (REQUERIDO, el #1 a rankear)', type: 'text', required: true },
+      { key: 'seoTitle', label: 'SEO Title (opcional, override 60-65 chars)', type: 'text' },
+      // ── Open Graph / social ──
+      { key: 'ogTitle', label: 'OG Title (opcional override social)', type: 'text' },
+      { key: 'ogDescription', label: 'OG Description (opcional override social)', type: 'textarea' },
+      {
+        key: 'twitterCard',
+        label: 'Twitter Card type',
+        type: 'select',
+        options: [
+          { value: '', label: '— auto (summary_large_image si hay imagen) —' },
+          { value: 'summary', label: 'summary' },
+          { value: 'summary_large_image', label: 'summary_large_image' },
+        ],
+      },
+      // ── Schema.org structured data ──
+      {
+        key: 'structuredDataType',
+        label: 'Structured data type (JSON-LD)',
+        type: 'select',
+        required: true,
+        defaultValue: 'BlogPosting',
+        options: [
+          { value: 'BlogPosting', label: 'BlogPosting (default)' },
+          { value: 'TechArticle', label: 'TechArticle' },
+          { value: 'OpinionPiece', label: 'OpinionPiece' },
+          { value: 'NewsArticle', label: 'NewsArticle' },
+        ],
+      },
+      // ── Crawler diplomacy ──
+      {
+        key: 'crawlPolicy',
+        label: 'Crawl policy (Googlebot/Bingbot)',
+        type: 'select',
+        required: true,
+        defaultValue: 'index',
+        options: [
+          { value: 'index', label: 'index (default)' },
+          { value: 'noindex', label: 'noindex' },
+        ],
+      },
+      {
+        key: 'aiCrawlPolicy',
+        label: 'AI Crawl policy (GPTBot, ClaudeBot, PerplexityBot)',
+        type: 'select',
+        required: true,
+        defaultValue: 'allow',
+        options: [
+          { value: 'allow', label: 'allow (default)' },
+          { value: 'disallow', label: 'disallow' },
+        ],
+      },
+      // ── Internal discovery ──
+      { key: 'internalTags', label: 'Internal tags (taxonomía interna, uno por línea)', type: 'sources' },
+      { key: 'relatedSlugs', label: 'Related article slugs (cross-links manuales, uno por línea)', type: 'sources' },
+      // ── Status ──
       {
         key: 'published',
         label: 'Publicado',

@@ -162,6 +162,42 @@ Orden de decisiones (importa):
 12. `desiredSlug` ← solo si el usuario quiere control SEO.
     Si no, dejá vacío (la rutina genera del title).
 
+13. `focusKeyword` ← REQUERIDO. El #1 keyword/frase que el artículo debe
+    rankear. Distinto de `keywords[]` (long-tail) e `internalTags[]` (taxonomía
+    interna). Pensalo: "si alguien busca esto en Google, quiero que aparezca
+    mi artículo". Una sola frase de 2-5 palabras, lowercase, sin tildes.
+
+14. `seoTitle` ← opcional. Solo si el title editorial es muy creativo y querés
+    una versión SEO-optimizada (60-65 chars, incluye focusKeyword). Si dejás
+    vacío, la rutina lo genera.
+
+15. `internalTags` ← curado de tags semánticos para filtros y "related content"
+    in-app. Diferente de keywords (que son SEO) y category (que es one-of).
+    Ejemplos: ["postura-fuerte", "lectura-larga", "podcast-companion",
+    "framework-accionable"]. 3-7 tags ideales, kebab-case.
+
+16. `relatedSlugs` ← cross-links manuales a artículos existentes que se
+    relacionan. Solo si conocés slugs específicos del catálogo. Si no, vacío.
+
+17. `structuredDataType` ← schema.org type. Default 'BlogPosting'. Cambiá si
+    aplica:
+    - 'TechArticle' si es muy técnico (código, arquitectura profunda)
+    - 'OpinionPiece' si es opinión declarativa (provocativo, contrarian)
+    - 'NewsArticle' si reporta evento reciente con fuentes news
+    - 'BlogPosting' default para todo lo demás
+
+18. `crawlPolicy` ← default 'index'. Cambiá a 'noindex' solo si:
+    - El artículo es estacional / de prueba / draft público
+    - El admin pidió específicamente no indexar
+
+19. `aiCrawlPolicy` ← default 'allow'. Cambiá a 'disallow' solo si:
+    - El artículo es premium / behind-paywall que no querés que se incluya
+      en respuestas de ChatGPT/Claude/Perplexity
+    - El admin pidió específicamente no compartir con AI bots
+
+20. `ogTitle`, `ogDescription`, `twitterCard` ← dejá vacíos (la rutina
+    genera defaults inteligentes). Solo setealos si querés override social.
+
 ---------------------------------------
 ETAPA 4 — OUTPUT
 ---------------------------------------
@@ -190,6 +226,7 @@ Lista label: value, exactamente con los nombres de los campos del form.
 Esto es lo que el admin va a copiar.
 
 ```
+# Core
 objective: ${value}
 target: ${value}
 topic: ${value}
@@ -210,6 +247,31 @@ tone: ${value or vacío}
 desiredLength: ${value}
 ogImageUrl: ${value or vacío}
 desiredSlug: ${value or vacío}
+
+# SEO core
+focusKeyword: ${value}                     # REQUERIDO
+seoTitle: ${value or vacío}
+
+# Open Graph / social (dejar vacíos salvo override)
+ogTitle: ${value or vacío}
+ogDescription: ${value or vacío}
+twitterCard: ${value or vacío}
+
+# Schema.org
+structuredDataType: ${value or BlogPosting}
+
+# Crawler diplomacy
+crawlPolicy: ${value or index}
+aiCrawlPolicy: ${value or allow}
+
+# Internal discovery
+internalTags (uno por línea, kebab-case):
+- ${tag1}
+- ${tag2}
+relatedSlugs (uno por línea, opcional):
+- ${slug1}
+
+# Status
 status: pending
 ```
 
@@ -259,6 +321,9 @@ Valores válidos:
 - freelancers          → creativos/técnicos independientes
 - personas_general     → uso cotidiano de IA, no laboral
 - estudiantes          → universitarios, aprendices
+- developers           → developers/engineers que escriben código (empleados,
+                         freelance, founders técnicos). Audiencia que se
+                         preocupa por craft, tooling, identidad del oficio
 
 Cómo derivar: leé el input y preguntate "¿esto a quién le habla?".
 Si ambiguo o no mencionado, default founders_pymes (audiencia core del sitio)
@@ -291,6 +356,10 @@ Valores válidos:
 - contratacion  → cómo contratar tech, equipo, freelancers, agencias
 - ia-aplicada   → IA en uso real, no teoría
 - estrategia    → decisiones de negocio, posicionamiento, crecimiento
+- craft         → oficio del software: arquitectura, patterns, mastery,
+                  identidad de developer, filosofía de la práctica
+- cultura       → industria tech, carreras, atención, dinámicas laborales,
+                  controversias del sector
 
 Cómo mapear: el dominio primario del tema. Si encaja en 2, elegí el más
 cercano al ángulo del artículo.
@@ -386,6 +455,14 @@ estudiantes:
   Vocabulario OK: profesor, examen, ensayo, paper, tesis, apunte, bibliografía
   Ejemplos típicos: "ese ensayo de 10 páginas", "estudiar para el parcial"
   Dolor real: procrastinar, sintetizar volumen, ChatGPT mal usado castigado
+
+developers:
+  Vocabulario OK: code, debug, prod, refactor, legacy, deploy, stack, branch,
+                  framework, IDE, terminal, bug, build, PR, merge, CI/CD
+  Ejemplos típicos: "ese bug en prod a las 3am", "el legacy que heredaste",
+                    "el refactor del viernes", "el Dockerfile de 200 líneas"
+  Dolor real: legacy hostil, fragmentación de atención, deuda técnica,
+              imposter syndrome, identidad profesional bajo presión IA
 
 ===========================================
 TABLA DE OBJECTIVES — intent y CTA

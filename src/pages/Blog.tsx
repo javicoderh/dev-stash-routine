@@ -13,6 +13,8 @@ const CATEGORY_LABELS: Record<ArticleCategory, string> = {
   contratacion:   'Contratar Tech',
   'ia-aplicada':  'IA Aplicada',
   estrategia:     'Estrategia',
+  craft:          'Craft',
+  cultura:        'Cultura',
 };
 
 function formatDate(ts: { seconds: number } | null | undefined): string {

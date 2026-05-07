@@ -105,7 +105,9 @@ export type ArticleCategory =
   | 'automatizacion'
   | 'contratacion'
   | 'ia-aplicada'
-  | 'estrategia';
+  | 'estrategia'
+  | 'craft'
+  | 'cultura';
 
 export type ArticleRelatedService =
   | 'diagnostico'
@@ -119,9 +121,21 @@ export type ArticleTarget =
   | 'trabajadores'
   | 'freelancers'
   | 'personas_general'
-  | 'estudiantes';
+  | 'estudiantes'
+  | 'developers';
+
+export type StructuredDataType =
+  | 'BlogPosting'
+  | 'TechArticle'
+  | 'OpinionPiece'
+  | 'NewsArticle';
+
+export type CrawlPolicy = 'index' | 'noindex';
+export type AiCrawlPolicy = 'allow' | 'disallow';
+export type TwitterCardType = 'summary' | 'summary_large_image';
 
 export type Article = {
+  // Core
   slug: string;
   title: string;
   metaDescription: string;
@@ -136,6 +150,31 @@ export type Article = {
   readingTime: string;
   relatedServiceId: ArticleRelatedService;
   published: boolean;
+
+  // SEO core
+  focusKeyword: string;
+  seoTitle: string | null;
+
+  // Open Graph / social
+  ogTitle: string | null;
+  ogDescription: string | null;
+  twitterCard: TwitterCardType | null;
+
+  // Schema.org
+  structuredDataType: StructuredDataType;
+
+  // Crawler diplomacy
+  crawlPolicy: CrawlPolicy;
+  aiCrawlPolicy: AiCrawlPolicy;
+
+  // Internal discovery
+  internalTags: string[];
+  relatedSlugs: string[];
+  searchTokens: string[];
+
+  // Content management
+  contentHash: string;
+  contentVersion: number;
 };
 
 export type AiTip = {

@@ -107,12 +107,14 @@ Firestore REST cada valor está envuelto por su tipo:
                               generar_confianza, responder_objecion
 - target            = REQUERIDO, fields.target.stringValue
                       Uno de: founders_pymes, emprendedores, trabajadores,
-                              freelancers, personas_general, estudiantes
+                              freelancers, personas_general, estudiantes,
+                              developers
                       DEFINE vocabulario, ejemplos, dolor abordado. Consultar Apéndice F.
 - topic             = REQUERIDO, fields.topic.stringValue
 - angle             = REQUERIDO, fields.angle.stringValue
 - category          = REQUERIDO, fields.category.stringValue
-                      Uno de: mvp, automatizacion, contratacion, ia-aplicada, estrategia
+                      Uno de: mvp, automatizacion, contratacion, ia-aplicada,
+                              estrategia, craft, cultura
 - keyPoints         = fields.keyPoints.arrayValue.values[].stringValue (puede estar vacío)
 - sources           = fields.sources.arrayValue.values[].stringValue (puede estar vacío)
 - externalResourceType        = fields.externalResourceType.stringValue, opcional
@@ -132,6 +134,33 @@ Firestore REST cada valor está envuelto por su tipo:
                       short | medium | long. Default: medium.
 - ogImageUrl        = fields.ogImageUrl.stringValue, opcional
 - desiredSlug       = fields.desiredSlug.stringValue, opcional
+
+SEO / DISCOVERY METADATA — leé estos campos del pending; si están vacíos
+generás defaults inteligentes en la Etapa C.
+
+- focusKeyword         = REQUERIDO, fields.focusKeyword.stringValue
+                         El keyword #1 que el artículo debe rankear.
+                         Si es vacío, fallar este pending con motivo
+                         "focusKeyword vacío — no se puede SEO-optimizar".
+- seoTitle             = fields.seoTitle.stringValue, opcional
+                         Si vacío, generás del title (60-65 chars, incluye focusKeyword)
+- ogTitle              = fields.ogTitle.stringValue, opcional
+                         Si vacío, fallback a seoTitle → title
+- ogDescription        = fields.ogDescription.stringValue, opcional
+                         Si vacío, fallback a metaDescription
+- twitterCard          = fields.twitterCard.stringValue, opcional
+                         Si vacío, default 'summary_large_image' si hay ogImage,
+                         si no 'summary'
+- structuredDataType   = fields.structuredDataType.stringValue, default 'BlogPosting'
+                         Uno de: BlogPosting, TechArticle, OpinionPiece, NewsArticle
+- crawlPolicy          = fields.crawlPolicy.stringValue, default 'index'
+                         Uno de: index, noindex
+- aiCrawlPolicy        = fields.aiCrawlPolicy.stringValue, default 'allow'
+                         Uno de: allow, disallow
+- internalTags         = fields.internalTags.arrayValue.values[].stringValue
+                         Taxonomía interna para filtros y sugerencias. Puede ser []
+- relatedSlugs         = fields.relatedSlugs.arrayValue.values[].stringValue
+                         Cross-links manuales. Puede ser []
 
 Si MISSING algún campo REQUERIDO, marcá ese pending como `failed` con mensaje
 "Campo obligatorio faltante: ${campo}" y pasá al siguiente.
@@ -300,8 +329,51 @@ Reportá bajo el header "🅒 ARTÍCULO FINAL" y luego un bloque JSON:
   "readingTime": "X min",
   "author": "Javier",
   "relatedServiceId": "..." | null,
-  "slug": "..."
+  "slug": "...",
+
+  // SEO / discovery metadata — generá defaults si el pending no los trajo
+  "focusKeyword": "...",                      // del pending, requerido
+  "seoTitle": "..." | null,                   // si pending lo trajo, sino generá del title
+  "ogTitle": "..." | null,                    // si pending, sino fallback a seoTitle/title
+  "ogDescription": "..." | null,              // si pending, sino fallback a metaDescription
+  "twitterCard": "summary_large_image" | "summary" | null,
+  "structuredDataType": "BlogPosting",        // del pending o default
+  "crawlPolicy": "index" | "noindex",         // del pending o default index
+  "aiCrawlPolicy": "allow" | "disallow",      // del pending o default allow
+  "internalTags": [...],                      // del pending o []
+  "relatedSlugs": [...]                       // del pending o []
 }
+
+#### ===== ETAPA D — AUTO-GENERAR CAMPOS DE CONTENT MANAGEMENT =====
+
+Después de tener el artículo final, computá tres campos auto. NO se piden al
+admin, salen del content directamente.
+
+1. **contentHash** = sha256(content) en hex.
+   Para hacer esto sin librería, usá la API de Web Crypto desde Node si está
+   disponible, o computá un hash simple. Cualquier hash determinístico de 64
+   chars hex es válido. Si tu environment no tiene crypto disponible, usá
+   un hash simple basado en longitud + suma de char codes — lo importante
+   es que el mismo content produzca el mismo hash.
+
+   Ejemplo de fallback aceptable (Python-ish):
+   ```
+   hash = sha256(content.encode('utf-8')).hexdigest()
+   ```
+
+2. **contentVersion** = 1 (siempre, para artículos nuevos creados por la rutina).
+   El admin lo bumpea manualmente cuando edita después.
+
+3. **searchTokens** = array de tokens únicos derivados de:
+   - title (lowercase, split en palabras > 3 chars)
+   - keywords (lowercase, sin tildes)
+   - internalTags (lowercase)
+   - focusKeyword (lowercase)
+   Eliminá duplicados. Filtrá stopwords obvias en español ("para", "como",
+   "este", "esta", "pero", "más", "los", "las", "con", "sin", "por", "que",
+   "del", "una", "uno"). Resultado: 10-30 tokens únicos.
+
+Reportá los 3 valores bajo "🅓 AUTO-FIELDS" antes del Paso 2.3.
 
 ### Paso 2.3 — Escribir el artículo a Firestore
 
@@ -336,12 +408,47 @@ Body:
     "author":           { "stringValue":   "Javier" },
     "readingTime":      { "stringValue":   "${readingTime}" },
     "relatedServiceId": { "stringValue":   "${relatedServiceId}" },
-    "published":        { "booleanValue":  false }
+    "published":        { "booleanValue":  false },
+
+    // SEO core
+    "focusKeyword":     { "stringValue":   "${focusKeyword}" },
+    "seoTitle":         { "stringValue":   "${seoTitle}" },
+
+    // Open Graph / social
+    "ogTitle":          { "stringValue":   "${ogTitle}" },
+    "ogDescription":    { "stringValue":   "${ogDescription}" },
+    "twitterCard":      { "stringValue":   "${twitterCard}" },
+
+    // Schema.org
+    "structuredDataType": { "stringValue": "${structuredDataType}" },
+
+    // Crawler diplomacy
+    "crawlPolicy":      { "stringValue":   "${crawlPolicy}" },
+    "aiCrawlPolicy":    { "stringValue":   "${aiCrawlPolicy}" },
+
+    // Internal discovery
+    "internalTags": {
+      "arrayValue": { "values": [{ "stringValue": "tag1" }] }
+    },
+    "relatedSlugs": {
+      "arrayValue": { "values": [{ "stringValue": "slug1" }] }
+    },
+    "searchTokens": {
+      "arrayValue": { "values": [{ "stringValue": "token1" }] }
+    },
+
+    // Content management (auto)
+    "contentHash":      { "stringValue":   "${contentHash}" },
+    "contentVersion":   { "integerValue":  "1" }
   }
 }
 
 Si ogImage es null, usá { "nullValue": null } en vez de { "stringValue": ... }.
-Lo mismo para relatedServiceId si es null.
+Lo mismo para relatedServiceId, seoTitle, ogTitle, ogDescription, twitterCard
+cuando sean null.
+
+Si internalTags, relatedSlugs o searchTokens están vacíos, igual incluí el
+campo con arrayValue.values: [] (array vacío).
 
 Si esto falla, ir al Paso 2.5 (failed).
 
@@ -594,11 +701,15 @@ APÉNDICE D — TAXONOMÍA DE LA APP
 ===========================================
 
 Categorías válidas para `category`:
-- mvp
-- automatizacion
-- contratacion
-- ia-aplicada
-- estrategia
+- mvp           — productos en early stage, validation, pivots
+- automatizacion → workflows sin humano, agentes, scripts
+- contratacion  — equipo, freelancers, agencias, hiring
+- ia-aplicada   — IA en uso real, casos concretos
+- estrategia    — negocio, posicionamiento, decisiones
+- craft         — oficio del software: arquitectura, patterns, mastery,
+                  identidad de developer, filosofía de la práctica
+- cultura       — industria tech, carreras, atención, dinámicas
+                  laborales, controversias del sector
 
 Servicios válidos para `relatedServiceId`:
 - diagnostico
@@ -613,15 +724,34 @@ APÉNDICE E — CHECKS PRE-WRITE (gate antes del PATCH)
 ===========================================
 
 Antes de escribir a /articles, verificá:
+
+CORE:
 - title no vacío y < 120 chars
 - metaDescription entre 140-180 chars
 - content > 300 palabras (short), > 600 (medium), > 1000 (long)
 - slug en kebab-case, sin tildes, sin chars especiales
-- category en lista válida
-- target en lista válida (no opcional)
+- category en lista válida (incluyendo craft, cultura)
+- target en lista válida (incluyendo developers)
 - relatedServiceId en lista válida o null
 - keywords array no vacío, entre 5 y 7 items
 - ogImage es URL válida o null
+
+SEO / DISCOVERY:
+- focusKeyword no vacío (REQUERIDO)
+- focusKeyword aparece literalmente en el title O en el primer párrafo del
+  content (gate de SEO básico)
+- seoTitle, si presente, entre 50 y 70 chars; incluye focusKeyword
+- structuredDataType en {BlogPosting, TechArticle, OpinionPiece, NewsArticle}
+- crawlPolicy en {index, noindex}
+- aiCrawlPolicy en {allow, disallow}
+- twitterCard en {summary, summary_large_image} o null
+- internalTags array (puede ser vacío)
+- relatedSlugs array (puede ser vacío)
+
+CONTENT MANAGEMENT:
+- contentHash es string hex de longitud > 16
+- contentVersion = 1 para artículos nuevos
+- searchTokens array no vacío, 10-30 tokens, lowercase
 
 Si algún check falla, no escribas. Ir a 2.5 (failed) con motivo específico.
 
@@ -702,6 +832,24 @@ estudiantes
   Prueba social útil: "un estudiante de ingeniería", "una tesista de
                       humanidades"
   EVITAR: jerga de negocio, ejemplos laborales adultos
+
+developers
+  Quién: developers/engineers que escriben código profesionalmente
+         (empleados, freelance, founders técnicos). Audiencia que se preocupa
+         por craft, tooling, identidad profesional del oficio.
+  Vocabulario OK: code, debug, prod, refactor, legacy, deploy, stack, branch,
+                  framework, IDE, terminal, bug, build, PR, merge, CI/CD,
+                  Docker, observabilidad, schema, endpoint
+  Ejemplos típicos: "ese bug en producción a las 3am", "el legacy que
+                    heredaste del que se fue", "el refactor del viernes que
+                    rompió todo", "el Dockerfile de 200 líneas"
+  Dolor que duele: legacy hostil, fragmentación de atención, deuda técnica,
+                   imposter syndrome, identidad profesional bajo presión IA,
+                   reuniones que matan flow, tech debt vs feature pressure
+  Prueba social útil: anécdotas de prod, casos reales con código, autores
+                      respetados (Fowler, Uncle Bob, Cockburn, Newport)
+  EVITAR: jerga 100% corporate (jefe, manager), ejemplos no-técnicos
+          (cocinar, viaje), condescendencia hacia el oficio
 
 REGLA TRANSVERSAL: si el target es uno y los ejemplos son de otro, el artículo
 falla en Etapa B. El target es el filtro que separa contenido que conecta de
