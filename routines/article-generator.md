@@ -210,6 +210,35 @@ Antes de escribir el draft, hacé este orden de decisiones:
 
 5. Generá el draft completo siguiendo el TEMPLATE OBLIGATORIO:
 
+   REGLA EDITORIAL DE POSITIVIDAD (OBLIGATORIA):
+   - Evitá construir la idea principal por negación o contraste tipo
+     "esto no es X, es Y", "no pasa por A sino por B", "no se trata de".
+   - Priorizá formulaciones afirmativas y declarativas: nombrá directamente
+     qué es, qué produce, qué habilita, qué cambia.
+   - Podés usar contraste cuando agrega precisión real, pero no como muletilla
+     rítmica repetida ni como estructura base del artículo.
+   - Esta regla aplica también a `title`, `metaDescription`, `seoTitle`,
+     `ogTitle` y `ogDescription`. La superficie editorial del artículo tiene
+     que abrir en positivo.
+   - No adivines qué está pensando el lector. Evitá fórmulas como
+     "pensás que", "creés que", "seguro te pasa que", "tal vez pensabas",
+     o cualquier setup donde el texto le atribuye una hipótesis mental previa
+     al lector para después corregirla.
+   - En vez de discutir contra una idea presupuesta del lector, presentá de
+     frente la idea que querés instalar. El artículo conduce, nombra y muestra;
+     no corrige una película mental inventada.
+   - `slug` también debe formularse en positivo. Evitá slugs apoyados en
+     negación o contraste correctivo cuando exista una formulación afirmativa
+     igual de clara.
+   - Redactá en español natural, completo y respirable. Evitá frases
+     cavernícolas o telegráficas tipo "corregir rumbo", "proteger atención",
+     "ganar claridad", "capturar valor" cuando la frase natural pide artículo.
+     Preferí "corregir el rumbo", "proteger la atención", "ganar la claridad
+     necesaria", "capturar el valor".
+   - Esto aplica a todo: título, bajada, subtítulos, bullets, CTA y cuerpo.
+     La prosa puede ser densa o elegante, pero nunca recortada como titular
+     incompleto o nota de slide.
+
    TEMPLATE OBLIGATORIO (no negociable, todos los tonos lo respetan)
 
    [Hero image markdown — usá ogImageUrl si vino. Si no, buscá vía WebSearch
@@ -288,6 +317,12 @@ EJE LINGÜÍSTICO:
 - [ ] Voseo consistente (semi_formal/anecdotico/provocativo/didactico) o "usted" (formal)
 - [ ] Sin frases de relleno ("vale destacar que", "es importante mencionar",
       "como bien sabemos")
+- [ ] La idea principal está formulada en positivo; no depende de muletillas de
+      contraste tipo "esto no es X, es Y" o "no pasa por A sino por B"
+- [ ] El texto no le atribuye pensamientos al lector para después corregirlos;
+      presenta la tesis de frente, sin adivinar estados mentales ajenos
+- [ ] La sintaxis suena a español natural; evita frases telegráficas sin
+      artículos cuando la construcción pide "el", "la", "los" o "las"
 - [ ] Analogías concretas presentes (objetos, oficios, actividades cotidianas)
 - [ ] Términos técnicos en inglés explicados o usados en contexto claro
 
@@ -302,6 +337,10 @@ EJE TARGET — ¿el artículo le habla al perfil correcto?
 - [ ] Si target="personas_general" → cero jerga corporativa o startup
 
 EJE META:
+- [ ] title, metaDescription, seoTitle, ogTitle y ogDescription abren en
+      positivo; no usan framing de negación como gancho principal
+- [ ] slug formulado en positivo; evita negación o contraste correctivo si hay
+      una versión afirmativa igual de clara
 - [ ] meta description 140-180 chars
 - [ ] 5-7 keywords relevantes generadas (lowercase, en español)
 - [ ] readingTime calculado realista: round(palabras / 200) min
