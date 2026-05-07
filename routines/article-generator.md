@@ -238,6 +238,22 @@ Antes de escribir el draft, hacé este orden de decisiones:
    - Esto aplica a todo: título, bajada, subtítulos, bullets, CTA y cuerpo.
      La prosa puede ser densa o elegante, pero nunca recortada como titular
      incompleto o nota de slide.
+   - Tratá esta regla como un gate de calidad, no como una preferencia blanda.
+     Si el draft cae más de una vez en framing correctivo por negación o en
+     sintaxis telegráfica, el draft queda editorialmente fallado y exige
+     reescritura antes de avanzar.
+   - Considerá gatillos de falla estas estructuras: "no es X, es Y",
+     "no se trata de X", "no pasa por X sino por Y", "más que X, Y",
+     "el problema no es X", "no necesitás X, necesitás Y", "no estás X, estás Y",
+     "tal vez no..." y "en realidad..." cuando operan como corrección de una
+     idea presupuesta del lector.
+   - Considerá también falla cualquier párrafo que se apoye en secuencias
+     nominales recortadas o frases sin artículos del tipo "Insomnio.
+     Irritabilidad. Cansancio.", "Sueño liviano. Tensión muscular. Digestión
+     alterada." o similares cuando la sintaxis natural pide una oración completa.
+   - Si necesitás contraste, usalo una sola vez y solo cuando agrega precisión
+     conceptual real. Si podés formular la misma idea de frente y en positivo,
+     esa versión es obligatoria.
 
    TEMPLATE OBLIGATORIO (no negociable, todos los tonos lo respetan)
 
@@ -323,6 +339,10 @@ EJE LINGÜÍSTICO:
       presenta la tesis de frente, sin adivinar estados mentales ajenos
 - [ ] La sintaxis suena a español natural; evita frases telegráficas sin
       artículos cuando la construcción pide "el", "la", "los" o "las"
+- [ ] No aparecen 2 o más estructuras de corrección por negación en todo el
+      artículo; si aparecen, el draft falla y se reescribe
+- [ ] No aparecen secuencias de frases nominales recortadas o listados
+      telegráficos incrustados en párrafos narrativos
 - [ ] Analogías concretas presentes (objetos, oficios, actividades cotidianas)
 - [ ] Términos técnicos en inglés explicados o usados en contexto claro
 
@@ -347,6 +367,11 @@ EJE META:
 
 LISTÁ EXPLÍCITAMENTE qué falló y qué corrigés en Etapa C. No pases a C sin
 esta lista de correcciones, aunque el draft te parezca bueno.
+
+Si en la crítica detectás 2 o más estructuras de negación correctiva, o 2 o
+más frases telegráficas sin artículos donde la sintaxis los pide, la Etapa B
+debe marcar el draft como FALLADO y la Etapa C tiene que reescribir esas zonas;
+no alcanza con exportar una versión casi igual.
 
 Reportá bajo el header "🅑 CRÍTICA".
 
@@ -779,6 +804,11 @@ SEO / DISCOVERY:
 - focusKeyword no vacío (REQUERIDO)
 - focusKeyword aparece literalmente en el title O en el primer párrafo del
   content (gate de SEO básico)
+- la tesis principal del content está formulada en positivo; no depende
+  estructuralmente de framing correctivo por negación ("no es X, es Y",
+  "no se trata de", "no pasa por X")
+- el content no contiene acumulaciones de frases telegráficas o nominales sin
+  artículos donde el español natural pide una sintaxis más completa
 - seoTitle, si presente, entre 50 y 70 chars; incluye focusKeyword
 - structuredDataType en {BlogPosting, TechArticle, OpinionPiece, NewsArticle}
 - crawlPolicy en {index, noindex}
@@ -793,6 +823,11 @@ CONTENT MANAGEMENT:
 - searchTokens array no vacío, 10-30 tokens, lowercase
 
 Si algún check falla, no escribas. Ir a 2.5 (failed) con motivo específico.
+
+Motivos de falla editorial válidos y explícitos:
+- "Fallo editorial: exceso de framing por negación/corrección"
+- "Fallo editorial: sintaxis telegráfica o cavernícola"
+- "Fallo editorial: el texto presupone ideas del lector para luego corregirlas"
 
 ===========================================
 APÉNDICE F — MATRIZ DE TARGETS (el más importante)
