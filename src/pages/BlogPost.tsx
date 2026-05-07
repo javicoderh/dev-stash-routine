@@ -20,7 +20,7 @@ function formatDate(ts: { seconds: number } | null | undefined): string {
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { data: article, isLoading } = useArticle(slug);
-  const trackPageView = useTrackCrmPageView();
+  const { mutate: trackPageView } = useTrackCrmPageView();
   const {
     visitorId,
     sessionId,
@@ -32,7 +32,7 @@ export default function BlogPost() {
 
   useEffect(() => {
     if (!slug || !visitorId || !sessionId) return;
-    trackPageView.mutate({
+    trackPageView({
       visitorId,
       sessionId,
       pageType: 'blog_post',

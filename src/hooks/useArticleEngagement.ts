@@ -22,9 +22,9 @@ export function useArticleEngagement(articleSlug: string | undefined) {
   const saveTimerRef = useRef<number | null>(null);
 
   const engagementQuery = useArticleEngagementQuery(articleSlug, visitorId);
-  const viewMutation = useTrackArticleView();
-  const timeMutation = useTrackArticleActiveTime();
-  const scrollDepthMutation = useTrackArticleScrollDepth();
+  const { mutate: trackArticleView } = useTrackArticleView();
+  const { mutate: trackArticleActiveTime } = useTrackArticleActiveTime();
+  const { mutate: trackArticleScrollDepth } = useTrackArticleScrollDepth();
   const ratingMutation = useRateArticle();
 
   useEffect(() => {
@@ -42,8 +42,8 @@ export function useArticleEngagement(articleSlug: string | undefined) {
   useEffect(() => {
     if (!articleSlug || !visitorId || !sessionId || trackedViewRef.current) return;
     trackedViewRef.current = true;
-    viewMutation.mutate({ articleSlug, visitorId, sessionId, incrementViews: 1 });
-  }, [articleSlug, sessionId, viewMutation, visitorId]);
+    trackArticleView({ articleSlug, visitorId, sessionId, incrementViews: 1 });
+  }, [articleSlug, sessionId, trackArticleView, visitorId]);
 
   useEffect(() => {
     if (!articleSlug || !visitorId || !sessionId) return;
@@ -55,7 +55,7 @@ export function useArticleEngagement(articleSlug: string | undefined) {
       if (activeSecondsRef.current <= 0) return;
       const delta = activeSecondsRef.current;
       activeSecondsRef.current = 0;
-      timeMutation.mutate({
+      trackArticleActiveTime({
         articleSlug: safeArticleSlug,
         visitorId: safeVisitorId,
         sessionId: safeSessionId,
@@ -65,7 +65,7 @@ export function useArticleEngagement(articleSlug: string | undefined) {
 
     function flushScrollDepth() {
       if (maxScrollDepthRef.current <= 0) return;
-      scrollDepthMutation.mutate({
+      trackArticleScrollDepth({
         articleSlug: safeArticleSlug,
         visitorId: safeVisitorId,
         sessionId: safeSessionId,
@@ -116,7 +116,13 @@ export function useArticleEngagement(articleSlug: string | undefined) {
       flush();
       flushScrollDepth();
     };
-  }, [articleSlug, scrollDepthMutation, sessionId, timeMutation, visitorId]);
+  }, [
+    articleSlug,
+    sessionId,
+    trackArticleActiveTime,
+    trackArticleScrollDepth,
+    visitorId,
+  ]);
 
   function setRating(rating: ArticleRating) {
     if (!articleSlug || !visitorId || !sessionId) return;

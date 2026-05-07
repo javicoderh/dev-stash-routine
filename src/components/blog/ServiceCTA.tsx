@@ -38,10 +38,10 @@ type Props = {
 };
 
 export function ServiceCTA({ relatedServiceId, articleSlug }: Props) {
-  if (!relatedServiceId) return null;
-  const svc = SERVICE_MAP[relatedServiceId];
   const { visitorId, sessionId } = useVisitorSession();
   const trackCtaClick = useTrackArticleCtaClick();
+  if (!relatedServiceId) return null;
+  const svc = SERVICE_MAP[relatedServiceId];
 
   function handleClick() {
     if (!articleSlug || !visitorId || !sessionId) return;

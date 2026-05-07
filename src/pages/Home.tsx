@@ -22,12 +22,12 @@ export default function Home() {
   const { data: articles } = useAllArticles();
   const { visitorId, sessionId } = useVisitorSession();
   const trackArticleCardClick = useTrackArticleCardClick();
-  const trackPageView = useTrackCrmPageView();
+  const { mutate: trackPageView } = useTrackCrmPageView();
   const isStale = briefing && briefing.date !== todayISO();
 
   useEffect(() => {
     if (!visitorId || !sessionId) return;
-    trackPageView.mutate({
+    trackPageView({
       visitorId,
       sessionId,
       pageType: 'home',

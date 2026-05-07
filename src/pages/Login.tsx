@@ -17,7 +17,7 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false);
   const [autoSigningIn, setAutoSigningIn] = useState(false);
   const saveEmail = useSaveVisitorEmail();
-  const trackPageView = useTrackCrmPageView();
+  const { mutate: trackPageView } = useTrackCrmPageView();
   const trackEmailSubmit = useTrackEmailCaptureSubmit();
   const attempted = useRef(false);
 
@@ -28,7 +28,7 @@ export default function Login() {
   useEffect(() => {
     const visitorId = getOrCreateVisitorId();
     const sessionId = getOrCreateSessionId();
-    trackPageView.mutate({
+    trackPageView({
       visitorId,
       sessionId,
       pageType: 'login',

@@ -29,12 +29,12 @@ export default function Blog() {
   const { data: articles, isLoading } = useAllArticles();
   const { visitorId, sessionId } = useVisitorSession();
   const trackArticleCardClick = useTrackArticleCardClick();
-  const trackPageView = useTrackCrmPageView();
+  const { mutate: trackPageView } = useTrackCrmPageView();
   const [activeCategory, setActiveCategory] = useState<ArticleCategory | 'todas'>('todas');
 
   useEffect(() => {
     if (!visitorId || !sessionId) return;
-    trackPageView.mutate({
+    trackPageView({
       visitorId,
       sessionId,
       pageType: 'blog_archive',

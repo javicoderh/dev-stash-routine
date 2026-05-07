@@ -111,11 +111,11 @@ function ServiceCard({
 
 export default function Servicios() {
   const { visitorId, sessionId } = useVisitorSession();
-  const trackPageView = useTrackCrmPageView();
+  const { mutate: trackPageView } = useTrackCrmPageView();
 
   useEffect(() => {
     if (!visitorId || !sessionId) return;
-    trackPageView.mutate({
+    trackPageView({
       visitorId,
       sessionId,
       pageType: 'services',
