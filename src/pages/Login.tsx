@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useSaveVisitorEmail } from '@/lib/queries';
+import { useSaveVisitorEmail, useTrackCrmPageView, useTrackEmailCaptureSubmit } from '@/lib/queries';
 import { Button } from '@/components/ui/Button';
 import { FullScreenLoader } from '@/components/ui/FullScreenLoader';
+import { getOrCreateSessionId, getOrCreateVisitorId } from '@/lib/crm';
 
 const VISITOR_EMAIL_KEY = 'dev-stash:visitor-email';
 
@@ -16,11 +17,25 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false);
   const [autoSigningIn, setAutoSigningIn] = useState(false);
   const saveEmail = useSaveVisitorEmail();
+  const trackPageView = useTrackCrmPageView();
+  const trackEmailSubmit = useTrackEmailCaptureSubmit();
   const attempted = useRef(false);
 
   const utmSource = searchParams.get('utm_source') ?? searchParams.get('ref') ?? 'direct';
   const utmMedium = searchParams.get('utm_medium');
   const utmCampaign = searchParams.get('utm_campaign');
+
+  useEffect(() => {
+    const visitorId = getOrCreateVisitorId();
+    const sessionId = getOrCreateSessionId();
+    trackPageView.mutate({
+      visitorId,
+      sessionId,
+      pageType: 'login',
+      pagePath: '/login',
+      componentId: 'login_page',
+    });
+  }, [trackPageView]);
 
   useEffect(() => {
     if (user) {
@@ -50,9 +65,18 @@ export default function Login() {
     setError(null);
     setSubmitting(true);
     try {
+      const visitorId = getOrCreateVisitorId();
+      const sessionId = getOrCreateSessionId();
       const uid = await signInAnon();
       localStorage.setItem(VISITOR_EMAIL_KEY, trimmed);
       saveEmail.mutate({ uid, email: trimmed, source: utmSource, utmMedium, utmCampaign });
+      trackEmailSubmit.mutate({
+        visitorId,
+        sessionId,
+        pageType: 'login',
+        pagePath: '/login',
+        source: utmSource,
+      });
       navigate('/', { replace: true });
     } catch {
       setError('Could not sign in. Check your connection and try again.');

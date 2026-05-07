@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
+  ArrowLeft,
   BookOpen,
   Bot,
   ChevronDown,
   ChevronRight,
   ClipboardList,
+  Construction,
   FileText,
   Inbox,
   Lightbulb,
@@ -25,6 +27,7 @@ import {
   useAdminDelete,
   useAdminUpdate,
 } from '@/lib/adminQueries';
+import { CrmSurface } from '@/components/admin/crm/CrmSurface';
 import { FullScreenLoader } from '@/components/ui/FullScreenLoader';
 
 // ─── Field / Collection config ────────────────────────────────────────────────
@@ -524,6 +527,33 @@ function formValuesToData(
   return data;
 }
 
+function PendingArticleStatusBadge({ status }: { status: string | null | undefined }) {
+  const value = status ?? 'pending';
+
+  const styles: Record<string, string> = {
+    pending: 'bg-amber-500/15 text-amber-800 dark:text-amber-300',
+    processing: 'bg-sky-500/15 text-sky-700 dark:text-sky-300',
+    completed: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+    failed: 'bg-rose-500/15 text-rose-700 dark:text-rose-300',
+  };
+
+  const labels: Record<string, string> = {
+    pending: 'Pending',
+    processing: 'Processing',
+    completed: 'Written',
+    failed: 'Failed',
+  };
+
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5
+                  font-mono text-[10px] uppercase tracking-wider ${styles[value] ?? styles.pending}`}
+    >
+      {labels[value] ?? value}
+    </span>
+  );
+}
+
 // ─── ItemForm ─────────────────────────────────────────────────────────────────
 
 function ItemForm({
@@ -650,6 +680,7 @@ function SectionPanel({ config }: { config: CollectionConfig }) {
   const [formValues, setFormValues] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
 
   const { data: items = [], isLoading } = useAdminCollection(config.collectionName, config.sortField);
   const createMutation = useAdminCreate(config.collectionName);
@@ -718,6 +749,31 @@ function SectionPanel({ config }: { config: CollectionConfig }) {
     }
   }
 
+  const completedPendingItems =
+    config.collectionName === 'pendingArticles'
+      ? items.filter((item) => item.status === 'completed')
+      : [];
+
+  async function handleBulkDeleteCompleted() {
+    if (!bulkDeleteConfirm) {
+      setBulkDeleteConfirm(true);
+      return;
+    }
+
+    setBulkDeleteConfirm(false);
+    setFormError(null);
+
+    try {
+      for (const item of completedPendingItems) {
+        await deleteMutation.mutateAsync(String(item.id));
+      }
+    } catch (err) {
+      setFormError(
+        err instanceof Error ? err.message : 'Failed to delete completed pending articles.',
+      );
+    }
+  }
+
   const editingId = typeof mode === 'object' ? mode.id : null;
 
   return (
@@ -728,6 +784,7 @@ function SectionPanel({ config }: { config: CollectionConfig }) {
           setOpen((v) => !v);
           setMode('idle');
           setDeleteConfirm(null);
+          setBulkDeleteConfirm(false);
         }}
         className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-bg-alt transition-colors"
       >
@@ -748,15 +805,40 @@ function SectionPanel({ config }: { config: CollectionConfig }) {
       {open && (
         <div className="border-t border-border px-5 py-4">
           {mode === 'idle' && (
-            <button
-              type="button"
-              onClick={startCreate}
-              className="inline-flex items-center gap-1.5 mb-4 px-3 py-1.5 rounded-xl border border-border
-                         text-sm text-text-secondary hover:bg-bg-alt hover:text-text-primary transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              New
-            </button>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={startCreate}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border
+                           text-sm text-text-secondary hover:bg-bg-alt hover:text-text-primary transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                New
+              </button>
+
+              {config.collectionName === 'pendingArticles' && completedPendingItems.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleBulkDeleteCompleted}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-sm transition-colors ${
+                    bulkDeleteConfirm
+                      ? 'border-accent-rust/30 text-accent-rust hover:bg-accent-rust/10'
+                      : 'border-border text-text-secondary hover:bg-bg-alt hover:text-text-primary'
+                  }`}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  {bulkDeleteConfirm
+                    ? `Confirm delete ${completedPendingItems.length} written`
+                    : `Delete ${completedPendingItems.length} written`}
+                </button>
+              )}
+            </div>
+          )}
+
+          {formError && mode === 'idle' && (
+            <p className="mb-4 text-sm text-accent-rust bg-accent-rust/10 border border-accent-rust/30 rounded-lg px-3 py-2">
+              {formError}
+            </p>
           )}
 
           {mode === 'creating' && (
@@ -783,6 +865,10 @@ function SectionPanel({ config }: { config: CollectionConfig }) {
                 const date = String(item.date ?? id);
                 const title = String(item.title ?? item.agentName ?? date);
                 const isEditing = editingId === id;
+                const pendingStatus =
+                  config.collectionName === 'pendingArticles'
+                    ? String(item.status ?? 'pending')
+                    : null;
 
                 return (
                   <div key={id}>
@@ -795,6 +881,7 @@ function SectionPanel({ config }: { config: CollectionConfig }) {
                         {date}
                       </span>
                       <span className="text-text-secondary truncate flex-1">{title}</span>
+                      {pendingStatus && <PendingArticleStatusBadge status={pendingStatus} />}
                       <div className="flex items-center gap-1 flex-shrink-0">
                         {deleteConfirm === id ? (
                           <>
@@ -874,6 +961,7 @@ function SectionPanel({ config }: { config: CollectionConfig }) {
 export default function Admin() {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const [activeSurface, setActiveSurface] = useState<'editorial' | 'crm' | 'devops'>('editorial');
 
   useEffect(() => {
     if (!loading && (!user || user.isAnonymous)) {
@@ -891,24 +979,179 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-bg-base">
-      <header className="border-b border-border bg-bg-surface sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
-          <span className="font-display text-base font-semibold text-text-primary">Dashboard</span>
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="inline-flex items-center gap-2 text-sm text-text-secondary
-                       hover:text-text-primary transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign out
-          </button>
+      <header className="border-b border-border bg-bg-base/90 backdrop-blur-sm sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-6 py-5 flex items-start justify-between gap-6">
+          <div className="min-w-0 flex-1">
+            <RouterLink
+              to="/"
+              className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em]
+                         text-text-muted hover:text-accent-primary transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Dev Stash
+            </RouterLink>
+
+            <div className="mt-3 rounded-2xl border border-border bg-bg-surface px-5 py-4 shadow-sm">
+              <div className="min-w-0">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-accent-primary">
+                  Admin Surface
+                </p>
+                <h1 className="mt-1 font-display text-2xl font-semibold leading-tight text-text-primary">
+                  {activeSurface === 'editorial'
+                    ? 'Dashboard editorial'
+                    : activeSurface === 'crm'
+                      ? 'CRM intelligence'
+                      : 'Dashboard DevOps'}
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-secondary">
+                  {activeSurface === 'editorial'
+                    ? 'Gestión de briefings, archivos técnicos, cola de artículos y contenido publicado del stash.'
+                    : activeSurface === 'crm'
+                      ? 'Lectores, journeys, afinidad temática e hipótesis para tomar decisiones sobre contenido, UI y servicios.'
+                    : 'Observabilidad, deploys, rutinas, checks y operación técnica del sistema.'}
+                </p>
+              </div>
+
+              <div className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-[1fr_1fr_0.8fr]">
+                <button
+                  type="button"
+                  onClick={() => setActiveSurface('editorial')}
+                  className={`flex-1 rounded-2xl border px-4 py-4 text-left transition-all ${
+                    activeSurface === 'editorial'
+                      ? 'border-accent-primary/25 bg-accent-primary/5 shadow-sm'
+                      : 'border-border bg-bg-alt/65 opacity-80 hover:opacity-100 hover:border-border-strong'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h2
+                        className={`font-display text-text-primary ${
+                          activeSurface === 'editorial' ? 'text-xl font-semibold' : 'text-lg font-medium'
+                        }`}
+                      >
+                        Editorial
+                      </h2>
+                      <p className="mt-1 text-sm leading-relaxed text-text-secondary">
+                        Contenido, briefings, cola de artículos y publicación del stash.
+                      </p>
+                    </div>
+                    {activeSurface === 'editorial' && (
+                      <span
+                        className="rounded-full bg-accent-primary px-2.5 py-1 font-mono text-[10px]
+                                   uppercase tracking-[0.16em] text-white"
+                      >
+                        Active
+                      </span>
+                    )}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveSurface('crm')}
+                  className={`rounded-2xl border px-4 py-4 text-left transition-all ${
+                    activeSurface === 'crm'
+                      ? 'border-accent-primary/25 bg-accent-primary/5 shadow-sm'
+                      : 'border-border bg-bg-alt/65 opacity-80 hover:opacity-100 hover:border-border-strong'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h2
+                        className={`font-display text-text-primary ${
+                          activeSurface === 'crm' ? 'text-xl font-semibold' : 'text-lg font-medium'
+                        }`}
+                      >
+                        CRM
+                      </h2>
+                      <p className="mt-1 text-sm leading-relaxed text-text-secondary">
+                        Personas, flujos, segmentos, señales y decisiones accionables.
+                      </p>
+                    </div>
+                    {activeSurface === 'crm' && (
+                      <span
+                        className="rounded-full bg-accent-primary px-2.5 py-1 font-mono text-[10px]
+                                   uppercase tracking-[0.16em] text-white"
+                      >
+                        Active
+                      </span>
+                    )}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveSurface('devops')}
+                  className={`rounded-2xl border px-4 py-4 text-left transition-all ${
+                    activeSurface === 'devops'
+                      ? 'border-accent-primary/25 bg-accent-primary/5 shadow-sm opacity-100'
+                      : 'border-border bg-bg-alt/65 opacity-80 hover:opacity-100 hover:border-border-strong'
+                  }`}
+                >
+                  <div>
+                    <h2
+                      className={`font-display text-text-primary ${
+                        activeSurface === 'devops' ? 'text-xl font-semibold' : 'text-lg font-medium'
+                      }`}
+                    >
+                      DevOps
+                    </h2>
+                    <p className="mt-1 text-sm leading-relaxed text-text-secondary">
+                      Observabilidad, deploys, rutinas, checks y operación técnica.
+                    </p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end gap-2 pt-1 shrink-0">
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="inline-flex items-center gap-2 rounded-xl border border-border bg-bg-surface
+                         px-3.5 py-2 text-sm text-text-secondary hover:border-border-strong
+                         hover:text-text-primary hover:bg-bg-alt transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign out
+            </button>
+            {user.email && (
+              <p className="max-w-[220px] text-right font-mono text-[11px] text-text-muted truncate">
+                {user.email}
+              </p>
+            )}
+          </div>
         </div>
       </header>
       <main className="max-w-4xl mx-auto px-6 py-8 space-y-3">
-        {COLLECTIONS.map((config) => (
-          <SectionPanel key={config.collectionName} config={config} />
-        ))}
+        {activeSurface === 'editorial' ? (
+          <>
+            {COLLECTIONS.map((config) => (
+              <SectionPanel key={config.collectionName} config={config} />
+            ))}
+          </>
+        ) : activeSurface === 'crm' ? (
+          <CrmSurface />
+        ) : (
+          <section className="rounded-2xl border border-border bg-bg-surface px-8 py-14 text-center shadow-sm">
+            <div className="mx-auto flex max-w-md flex-col items-center">
+              <div
+                className="flex h-14 w-14 items-center justify-center rounded-2xl
+                           border border-accent-primary/20 bg-accent-primary/8 text-accent-primary"
+              >
+                <Construction className="h-6 w-6" />
+              </div>
+              <h2 className="mt-5 font-display text-2xl font-semibold text-text-primary">
+                Dashboard DevOps en construcción
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-text-secondary">
+                Esta superficie va a concentrar deploys, observabilidad, rutinas,
+                checks y operación técnica. Por ahora todavía no hay módulos activos.
+              </p>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );

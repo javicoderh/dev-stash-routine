@@ -1,11 +1,14 @@
+import { useEffect } from 'react';
 import { Link as RouterLink, useParams } from 'react-router-dom';
 import { ArrowLeft, Calendar, Clock, User } from 'lucide-react';
-import { useArticle } from '@/lib/queries';
+import { useArticle, useTrackCrmPageView } from '@/lib/queries';
 import { PageMeta } from '@/components/seo/PageMeta';
 import { Markdown } from '@/components/markdown/Markdown';
 import { ServiceCTA } from '@/components/blog/ServiceCTA';
+import { ArticleRating } from '@/components/blog/ArticleRating';
 import { EmailCaptureBanner } from '@/components/ui/EmailCaptureBanner';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useArticleEngagement } from '@/hooks/useArticleEngagement';
 
 function formatDate(ts: { seconds: number } | null | undefined): string {
   if (!ts) return '';
@@ -17,6 +20,27 @@ function formatDate(ts: { seconds: number } | null | undefined): string {
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { data: article, isLoading } = useArticle(slug);
+  const trackPageView = useTrackCrmPageView();
+  const {
+    visitorId,
+    sessionId,
+    rating,
+    setRating,
+    isSavingRating,
+    justSaved,
+  } = useArticleEngagement(slug);
+
+  useEffect(() => {
+    if (!slug || !visitorId || !sessionId) return;
+    trackPageView.mutate({
+      visitorId,
+      sessionId,
+      pageType: 'blog_post',
+      pagePath: `/blog/${slug}`,
+      articleSlug: slug,
+      componentId: 'blog_post_page',
+    });
+  }, [sessionId, slug, trackPageView, visitorId]);
 
   if (isLoading) {
     return (
@@ -120,7 +144,14 @@ export default function BlogPost() {
             <Markdown>{article.content}</Markdown>
           </article>
 
-          <ServiceCTA relatedServiceId={article.relatedServiceId} />
+          <ArticleRating
+            rating={rating}
+            onRate={setRating}
+            isSaving={isSavingRating}
+            justSaved={justSaved}
+          />
+
+          <ServiceCTA relatedServiceId={article.relatedServiceId} articleSlug={article.slug} />
 
           <div className="mt-10">
             <EmailCaptureBanner />

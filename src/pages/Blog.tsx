@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Clock } from 'lucide-react';
-import { useAllArticles } from '@/lib/queries';
+import { useAllArticles, useTrackArticleCardClick, useTrackCrmPageView } from '@/lib/queries';
 import { PageMeta } from '@/components/seo/PageMeta';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmailCaptureBanner } from '@/components/ui/EmailCaptureBanner';
 import type { ArticleCategory } from '@/types/firestore';
+import { useVisitorSession } from '@/hooks/useVisitorSession';
 
 const CATEGORY_LABELS: Record<ArticleCategory, string> = {
   mvp:            'MVP & Producto',
@@ -26,7 +27,21 @@ function formatDate(ts: { seconds: number } | null | undefined): string {
 
 export default function Blog() {
   const { data: articles, isLoading } = useAllArticles();
+  const { visitorId, sessionId } = useVisitorSession();
+  const trackArticleCardClick = useTrackArticleCardClick();
+  const trackPageView = useTrackCrmPageView();
   const [activeCategory, setActiveCategory] = useState<ArticleCategory | 'todas'>('todas');
+
+  useEffect(() => {
+    if (!visitorId || !sessionId) return;
+    trackPageView.mutate({
+      visitorId,
+      sessionId,
+      pageType: 'blog_archive',
+      pagePath: '/blog',
+      componentId: 'blog_archive_page',
+    });
+  }, [sessionId, trackPageView, visitorId]);
 
   const filtered = articles?.filter(
     (a) => activeCategory === 'todas' || a.category === activeCategory,
@@ -35,6 +50,17 @@ export default function Blog() {
   const categories = articles
     ? ([...new Set(articles.map((a) => a.category))] as ArticleCategory[])
     : [];
+
+  function handleArticleClick(slug: string) {
+    if (!visitorId || !sessionId) return;
+    trackArticleCardClick.mutate({
+      articleSlug: slug,
+      visitorId,
+      sessionId,
+      cardClicks: 1,
+      cardClickSource: 'blog_archive',
+    });
+  }
 
   return (
     <>
@@ -106,6 +132,7 @@ export default function Blog() {
                 <RouterLink
                   key={article.slug}
                   to={`/blog/${article.slug}`}
+                  onClick={() => handleArticleClick(article.slug)}
                   className="group flex flex-col rounded-2xl border border-border bg-bg-surface
                              overflow-hidden hover:border-border-strong hover:shadow-sm transition-all"
                 >

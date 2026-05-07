@@ -1,6 +1,7 @@
+import { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { useLatestBriefing, useAllArticles } from '@/lib/queries';
+import { useLatestBriefing, useAllArticles, useTrackArticleCardClick, useTrackCrmPageView } from '@/lib/queries';
 import { PublicHero } from '@/components/home/PublicHero';
 import { PublicQuickNav } from '@/components/home/PublicQuickNav';
 import { TechSection } from '@/components/home/TechSection';
@@ -14,11 +15,37 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { MonoLabel } from '@/components/ui/MonoLabel';
 import { PageMeta } from '@/components/seo/PageMeta';
 import { formatDateLong, todayISO } from '@/lib/dates';
+import { useVisitorSession } from '@/hooks/useVisitorSession';
 
 export default function Home() {
   const { data: briefing, isLoading } = useLatestBriefing();
   const { data: articles } = useAllArticles();
+  const { visitorId, sessionId } = useVisitorSession();
+  const trackArticleCardClick = useTrackArticleCardClick();
+  const trackPageView = useTrackCrmPageView();
   const isStale = briefing && briefing.date !== todayISO();
+
+  useEffect(() => {
+    if (!visitorId || !sessionId) return;
+    trackPageView.mutate({
+      visitorId,
+      sessionId,
+      pageType: 'home',
+      pagePath: '/',
+      componentId: 'home_page',
+    });
+  }, [sessionId, trackPageView, visitorId]);
+
+  function handleArticleClick(slug: string) {
+    if (!visitorId || !sessionId) return;
+    trackArticleCardClick.mutate({
+      articleSlug: slug,
+      visitorId,
+      sessionId,
+      cardClicks: 1,
+      cardClickSource: 'home',
+    });
+  }
 
   return (
     <>
@@ -51,6 +78,7 @@ export default function Home() {
                   <RouterLink
                     key={article.slug}
                     to={`/blog/${article.slug}`}
+                    onClick={() => handleArticleClick(article.slug)}
                     className="group rounded-2xl border border-border bg-bg-surface
                                overflow-hidden flex flex-col
                                hover:border-border-strong hover:shadow-sm transition-all"

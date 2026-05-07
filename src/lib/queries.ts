@@ -1,6 +1,7 @@
 import {
   collection,
   doc,
+  increment,
   getDoc,
   getDocs,
   limit as fsLimit,
@@ -15,14 +16,21 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/firebase';
 import type {
   AgentItem,
+  ArticleEngagement,
+  ArticleRelatedService,
+  ArticleRating,
   AiTip,
   Article,
   Briefing,
   BusinessIdea,
+  CrmEvent,
+  CrmEventType,
+  CrmPageType,
   FlatNewsItem,
   RustReading,
   RustTask,
 } from '@/types/firestore';
+import { buildArticleEngagementId, createCrmEventId, getCurrentPath } from '@/lib/crm';
 
 const LIST_STALE = 1000 * 60 * 5;
 const DETAIL_STALE = Infinity;
@@ -53,7 +61,67 @@ export const queryKeys = {
 
   allArticles: ['articles', 'all'] as const,
   article: (slug: string) => ['articles', 'bySlug', slug] as const,
+  articleEngagement: (slug: string, visitorId: string) =>
+    ['articleEngagement', slug, visitorId] as const,
 };
+
+type EngagementPayload = {
+  articleSlug: string;
+  visitorId: string;
+  sessionId: string;
+  incrementViews?: number;
+  incrementActiveSeconds?: number;
+  rating?: ArticleRating | null;
+  ctaClicks?: number;
+  cardClicks?: number;
+  maxScrollDepth?: number;
+  cardClickSource?: string;
+  relatedServiceId?: ArticleRelatedService;
+};
+
+type CrmEventPayload = {
+  eventType: CrmEventType;
+  visitorId: string;
+  sessionId: string;
+  pageType: CrmPageType;
+  pagePath?: string;
+  articleSlug?: string | null;
+  source?: string | null;
+  componentId?: string | null;
+  relatedServiceId?: ArticleRelatedService;
+  value?: number | null;
+};
+
+async function recordCrmEvent({
+  eventType,
+  visitorId,
+  sessionId,
+  pageType,
+  pagePath,
+  articleSlug = null,
+  source = null,
+  componentId = null,
+  relatedServiceId,
+  value = null,
+}: CrmEventPayload) {
+  const eventId = createCrmEventId();
+  const payload: Omit<CrmEvent, 'occurredAt'> & { occurredAt: unknown } = {
+    eventId,
+    eventType,
+    visitorId,
+    sessionId,
+    articleSlug,
+    pagePath: pagePath ?? getCurrentPath(),
+    pageType,
+    source,
+    componentId,
+    relatedServiceId: relatedServiceId ?? null,
+    value,
+    occurredAt: serverTimestamp(),
+  };
+
+  await setDoc(doc(db, 'crmEvents', eventId), payload);
+}
 
 export function useLatestBriefing() {
   return useQuery({
@@ -393,6 +461,328 @@ export function useArticle(slug: string | undefined) {
   });
 }
 
+export function useArticleEngagement(
+  articleSlug: string | undefined,
+  visitorId: string | null,
+) {
+  return useQuery({
+    queryKey: queryKeys.articleEngagement(articleSlug ?? '__missing__', visitorId ?? '__anon__'),
+    enabled: !!articleSlug && !!visitorId,
+    staleTime: LIST_STALE,
+    queryFn: async (): Promise<ArticleEngagement | null> => {
+      if (!articleSlug || !visitorId) return null;
+      const ref = doc(db, 'articleEngagement', buildArticleEngagementId(visitorId, articleSlug));
+      const snap = await getDoc(ref);
+      return snap.exists()
+        ? ({ id: snap.id, ...(snap.data() as Omit<ArticleEngagement, 'id'>) })
+        : null;
+    },
+  });
+}
+
+export function useUpsertArticleEngagement() {
+  return useMutation({
+    mutationFn: async ({
+      articleSlug,
+      visitorId,
+      sessionId,
+      incrementViews = 0,
+      incrementActiveSeconds = 0,
+      rating,
+      ctaClicks = 0,
+      cardClicks = 0,
+      maxScrollDepth,
+      cardClickSource,
+      relatedServiceId,
+    }: EngagementPayload) => {
+      const id = buildArticleEngagementId(visitorId, articleSlug);
+      const ref = doc(db, 'articleEngagement', id);
+      const existing = await getDoc(ref);
+
+      const payload: Record<string, unknown> = {
+        visitorId,
+        articleSlug,
+        sessionId,
+        lastViewedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+
+      if (!existing.exists()) {
+        payload.viewCount = incrementViews;
+        payload.activeSeconds = incrementActiveSeconds;
+        payload.rating = rating ?? null;
+        payload.ratedAt = rating ? serverTimestamp() : null;
+        payload.ctaClicks = ctaClicks;
+        payload.cardClicks = cardClicks;
+        payload.maxScrollDepth = maxScrollDepth ?? 0;
+        payload.lastCardClickSource = cardClickSource ?? null;
+        payload.lastCardClickedAt = cardClickSource ? serverTimestamp() : null;
+        payload.lastCtaServiceId = relatedServiceId ?? null;
+        payload.lastCtaClickedAt = relatedServiceId ? serverTimestamp() : null;
+        payload.firstViewedAt = serverTimestamp();
+        payload.createdAt = serverTimestamp();
+      } else {
+        if (incrementViews) payload.viewCount = increment(incrementViews);
+        if (incrementActiveSeconds) payload.activeSeconds = increment(incrementActiveSeconds);
+        if (ctaClicks) payload.ctaClicks = increment(ctaClicks);
+        if (cardClicks) payload.cardClicks = increment(cardClicks);
+        if (typeof maxScrollDepth === 'number') {
+          const currentMax = Number(existing.data().maxScrollDepth ?? 0);
+          payload.maxScrollDepth = Math.max(currentMax, maxScrollDepth);
+        }
+        if (cardClickSource) {
+          payload.lastCardClickSource = cardClickSource;
+          payload.lastCardClickedAt = serverTimestamp();
+        }
+        if (relatedServiceId) {
+          payload.lastCtaServiceId = relatedServiceId;
+          payload.lastCtaClickedAt = serverTimestamp();
+        }
+        if (rating !== undefined) {
+          payload.rating = rating;
+          payload.ratedAt = rating ? serverTimestamp() : null;
+        }
+      }
+
+      await setDoc(ref, payload, { merge: true });
+    },
+  });
+}
+
+export function useTrackArticleView() {
+  const upsert = useUpsertArticleEngagement();
+  return useMutation({
+    mutationFn: async ({ articleSlug, visitorId, sessionId }: Omit<EngagementPayload, 'incrementActiveSeconds' | 'rating' | 'ctaClicks'>) => {
+      await upsert.mutateAsync({
+        articleSlug,
+        visitorId,
+        sessionId,
+        incrementViews: 1,
+      });
+      await recordCrmEvent({
+        eventType: 'article_view',
+        visitorId,
+        sessionId,
+        articleSlug,
+        pageType: 'blog_post',
+      });
+    },
+  });
+}
+
+export function useTrackArticleActiveTime() {
+  const upsert = useUpsertArticleEngagement();
+  return useMutation({
+    mutationFn: async ({
+      articleSlug,
+      visitorId,
+      sessionId,
+      incrementActiveSeconds,
+    }: EngagementPayload) => {
+      await upsert.mutateAsync({
+        articleSlug,
+        visitorId,
+        sessionId,
+        incrementActiveSeconds,
+      });
+      await recordCrmEvent({
+        eventType: 'article_active_time_flush',
+        visitorId,
+        sessionId,
+        articleSlug,
+        pageType: 'blog_post',
+        value: incrementActiveSeconds ?? 0,
+      });
+    },
+  });
+}
+
+export function useRateArticle() {
+  const upsert = useUpsertArticleEngagement();
+  return useMutation({
+    mutationFn: async ({
+      articleSlug,
+      visitorId,
+      sessionId,
+      rating,
+    }: EngagementPayload) => {
+      await upsert.mutateAsync({
+        articleSlug,
+        visitorId,
+        sessionId,
+        rating,
+      });
+      await recordCrmEvent({
+        eventType: 'article_rating',
+        visitorId,
+        sessionId,
+        articleSlug,
+        pageType: 'blog_post',
+        value: rating ?? null,
+      });
+    },
+  });
+}
+
+export function useTrackArticleCtaClick() {
+  const upsert = useUpsertArticleEngagement();
+  return useMutation({
+    mutationFn: async ({
+      articleSlug,
+      visitorId,
+      sessionId,
+      relatedServiceId,
+    }: EngagementPayload) => {
+      await upsert.mutateAsync({
+        articleSlug,
+        visitorId,
+        sessionId,
+        ctaClicks: 1,
+        relatedServiceId,
+      });
+      await recordCrmEvent({
+        eventType: 'cta_click',
+        visitorId,
+        sessionId,
+        articleSlug,
+        pageType: 'blog_post',
+        componentId: 'service_cta',
+        relatedServiceId,
+        value: 1,
+      });
+    },
+  });
+}
+
+export function useTrackArticleCardClick() {
+  const upsert = useUpsertArticleEngagement();
+  return useMutation({
+    mutationFn: async ({
+      articleSlug,
+      visitorId,
+      sessionId,
+      cardClickSource,
+    }: EngagementPayload) => {
+      await upsert.mutateAsync({
+        articleSlug,
+        visitorId,
+        sessionId,
+        cardClicks: 1,
+        cardClickSource,
+      });
+      await recordCrmEvent({
+        eventType: 'article_card_click',
+        visitorId,
+        sessionId,
+        articleSlug,
+        pageType: cardClickSource === 'home' ? 'home' : 'blog_archive',
+        source: cardClickSource ?? null,
+        componentId: 'article_card',
+        value: 1,
+      });
+    },
+  });
+}
+
+export function useTrackArticleScrollDepth() {
+  const upsert = useUpsertArticleEngagement();
+  return useMutation({
+    mutationFn: async ({
+      articleSlug,
+      visitorId,
+      sessionId,
+      maxScrollDepth,
+    }: EngagementPayload) => {
+      await upsert.mutateAsync({
+        articleSlug,
+        visitorId,
+        sessionId,
+        maxScrollDepth,
+      });
+      await recordCrmEvent({
+        eventType: 'article_scroll_depth_update',
+        visitorId,
+        sessionId,
+        articleSlug,
+        pageType: 'blog_post',
+        value: maxScrollDepth ?? 0,
+      });
+    },
+  });
+}
+
+export function useTrackCrmPageView() {
+  return useMutation({
+    mutationFn: async ({
+      visitorId,
+      sessionId,
+      pageType,
+      pagePath,
+      source,
+      componentId,
+      relatedServiceId,
+      articleSlug,
+    }: Omit<CrmEventPayload, 'eventType'>) => {
+      await recordCrmEvent({
+        eventType: pageType === 'services' ? 'services_page_view' : 'page_view',
+        visitorId,
+        sessionId,
+        pageType,
+        pagePath,
+        source,
+        componentId,
+        relatedServiceId,
+        articleSlug,
+      });
+    },
+  });
+}
+
+export function useTrackEmailCaptureClick() {
+  return useMutation({
+    mutationFn: async ({
+      visitorId,
+      sessionId,
+      pageType,
+      pagePath,
+      source,
+      componentId,
+    }: Omit<CrmEventPayload, 'eventType' | 'articleSlug' | 'relatedServiceId' | 'value'>) => {
+      await recordCrmEvent({
+        eventType: 'email_capture_click',
+        visitorId,
+        sessionId,
+        pageType,
+        pagePath,
+        source,
+        componentId,
+      });
+    },
+  });
+}
+
+export function useTrackEmailCaptureSubmit() {
+  return useMutation({
+    mutationFn: async ({
+      visitorId,
+      sessionId,
+      pageType,
+      pagePath,
+      source,
+    }: Omit<CrmEventPayload, 'eventType' | 'articleSlug' | 'componentId' | 'relatedServiceId' | 'value'>) => {
+      await recordCrmEvent({
+        eventType: 'email_capture_submit',
+        visitorId,
+        sessionId,
+        pageType,
+        pagePath,
+        source,
+        componentId: 'login_email_form',
+      });
+    },
+  });
+}
+
 type VisitorPayload = {
   uid: string;
   email: string;
@@ -416,4 +806,3 @@ export function useSaveVisitorEmail() {
     },
   });
 }
-

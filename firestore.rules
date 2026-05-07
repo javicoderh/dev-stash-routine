@@ -80,6 +80,48 @@ service cloud.firestore {
       allow update, delete: if isBot() || isAdmin();
     }
 
+    match /articleEngagement/{id} {
+      allow read: if isAdmin() || isBot();
+
+      allow create: if isSignedIn()
+                    && request.resource.data.visitorId is string
+                    && request.resource.data.articleSlug is string
+                    && request.resource.data.sessionId is string
+                    && request.resource.data.viewCount is int
+                    && request.resource.data.activeSeconds is int;
+
+      allow update: if isSignedIn()
+                    && resource.data.visitorId == request.resource.data.visitorId
+                    && resource.data.articleSlug == request.resource.data.articleSlug;
+
+      allow delete: if isAdmin();
+    }
+
+    match /crmEvents/{id} {
+      allow read: if isAdmin() || isBot();
+
+      allow create: if isSignedIn()
+                    && request.resource.data.eventId is string
+                    && request.resource.data.eventType is string
+                    && request.resource.data.visitorId is string
+                    && request.resource.data.sessionId is string
+                    && request.resource.data.pagePath is string
+                    && request.resource.data.pageType is string;
+
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /leadProfiles/{id} {
+      allow read: if isAdmin() || isBot();
+      allow write: if isAdmin() || isBot();
+    }
+
+    match /journeySummaries/{id} {
+      allow read: if isAdmin() || isBot();
+      allow write: if isAdmin() || isBot();
+    }
+
     // ────────── Captura de leads (visitors) ──────────
     // Doc ID = email lowercased. Cada visitante crea/actualiza solo su doc.
     // Admin lee toda la colección. P0.4 agrega source/utmMedium/utmCampaign.

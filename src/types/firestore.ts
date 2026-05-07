@@ -189,3 +189,109 @@ export type AiTip = {
   readAt: Timestamp | null;
   createdAt: Timestamp;
 };
+
+export type ArticleRating = 1 | 2 | 3 | 4 | 5;
+
+export type CrmPageType = 'home' | 'blog_archive' | 'blog_post' | 'services' | 'login' | 'other';
+
+export type CrmEventType =
+  | 'page_view'
+  | 'article_view'
+  | 'article_card_click'
+  | 'article_rating'
+  | 'article_active_time_flush'
+  | 'article_scroll_depth_update'
+  | 'cta_click'
+  | 'email_capture_click'
+  | 'email_capture_submit'
+  | 'services_page_view';
+
+export type LeadLifecycleStage = 'cold' | 'aware' | 'engaged' | 'warm' | 'hot';
+
+export type CrmJourneyOutcome =
+  | 'solo_lectura'
+  | 'exploracion'
+  | 'intencion'
+  | 'salto_a_servicios';
+
+export type CrmSegmentId =
+  | 'scanner'
+  | 'reader'
+  | 'engaged_reader'
+  | 'high_intent_reader'
+  | 'topic_clustered'
+  | 'returning_evaluator'
+  | 'warm_lead'
+  | 'hot_lead';
+
+export type ArticleEngagement = {
+  id: string;
+  visitorId: string;
+  articleSlug: string;
+  sessionId: string;
+  viewCount: number;
+  activeSeconds: number;
+  rating: ArticleRating | null;
+  ratedAt: Timestamp | null;
+  firstViewedAt: Timestamp;
+  lastViewedAt: Timestamp;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  maxScrollDepth?: number;
+  ctaClicks?: number;
+  cardClicks?: number;
+  lastCardClickSource?: string | null;
+  lastCardClickedAt?: Timestamp | null;
+  lastCtaServiceId?: ArticleRelatedService;
+  lastCtaClickedAt?: Timestamp | null;
+  source?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
+  email?: string | null;
+};
+
+export type CrmEvent = {
+  eventId: string;
+  eventType: CrmEventType;
+  visitorId: string;
+  sessionId: string;
+  articleSlug?: string | null;
+  pagePath: string;
+  pageType: CrmPageType;
+  source?: string | null;
+  componentId?: string | null;
+  relatedServiceId?: ArticleRelatedService;
+  value?: number | null;
+  occurredAt: Timestamp;
+};
+
+export type LeadProfile = {
+  id: string;
+  visitorId: string;
+  email: string | null;
+  firstSeenAt: Timestamp;
+  lastSeenAt: Timestamp;
+  visitCount: number;
+  sessionCount: number;
+  totalActiveSeconds: number;
+  articlesReadCount: number;
+  ctaClicks: number;
+  avgRatingGiven: number | null;
+  strongestTopicAffinity: string | null;
+  strongestCommercialIntent: string | null;
+  leadScore: number;
+  lifecycleStage: LeadLifecycleStage;
+};
+
+export type JourneySummary = {
+  id: string;
+  visitorId: string;
+  sessionId: string;
+  landingPath: string;
+  articleSlugs: string[];
+  pagesVisited: string[];
+  ctaClicks: number;
+  servicesTouched: string[];
+  startedAt: Timestamp;
+  endedAt: Timestamp;
+};

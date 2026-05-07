@@ -1,6 +1,9 @@
+import { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock, DollarSign } from 'lucide-react';
 import { PageMeta } from '@/components/seo/PageMeta';
+import { useTrackCrmPageView } from '@/lib/queries';
+import { useVisitorSession } from '@/hooks/useVisitorSession';
 
 // Replace with your actual Cal.com or booking links
 const INTRO_CALL_URL = 'https://cal.com/javier/intro';
@@ -107,6 +110,20 @@ function ServiceCard({
 }
 
 export default function Servicios() {
+  const { visitorId, sessionId } = useVisitorSession();
+  const trackPageView = useTrackCrmPageView();
+
+  useEffect(() => {
+    if (!visitorId || !sessionId) return;
+    trackPageView.mutate({
+      visitorId,
+      sessionId,
+      pageType: 'services',
+      pagePath: '/servicios',
+      componentId: 'services_page',
+    });
+  }, [sessionId, trackPageView, visitorId]);
+
   return (
     <>
       <PageMeta

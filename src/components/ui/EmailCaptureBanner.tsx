@@ -1,9 +1,13 @@
 import { Link as RouterLink } from 'react-router-dom';
 import { Mail } from 'lucide-react';
+import { useTrackEmailCaptureClick } from '@/lib/queries';
+import { useVisitorSession } from '@/hooks/useVisitorSession';
 
 const VISITOR_EMAIL_KEY = 'dev-stash:visitor-email';
 
 export function EmailCaptureBanner() {
+  const { visitorId, sessionId } = useVisitorSession();
+  const trackCaptureClick = useTrackEmailCaptureClick();
   const hasEmail =
     typeof window !== 'undefined' && !!localStorage.getItem(VISITOR_EMAIL_KEY);
 
@@ -27,6 +31,20 @@ export function EmailCaptureBanner() {
       </div>
       <RouterLink
         to="/login"
+        onClick={() => {
+          if (!visitorId || !sessionId) return;
+          trackCaptureClick.mutate({
+            visitorId,
+            sessionId,
+            pageType: typeof window !== 'undefined' && window.location.pathname.startsWith('/blog/')
+              ? 'blog_post'
+              : typeof window !== 'undefined' && window.location.pathname === '/blog'
+                ? 'blog_archive'
+                : 'home',
+            source: 'email_capture_banner',
+            componentId: 'email_capture_banner',
+          });
+        }}
         className="shrink-0 inline-flex items-center justify-center px-4 py-2 rounded-xl
                    border border-accent-primary/40 text-accent-primary text-sm font-medium
                    hover:bg-accent-primary/10 focus-visible:ring-2 focus-visible:ring-accent-primary

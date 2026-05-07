@@ -1,6 +1,8 @@
 import { Link as RouterLink } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import type { ArticleRelatedService } from '@/types/firestore';
+import { useTrackArticleCtaClick } from '@/lib/queries';
+import { useVisitorSession } from '@/hooks/useVisitorSession';
 
 type ServiceInfo = {
   label: string;
@@ -30,11 +32,27 @@ const SERVICE_MAP: Record<NonNullable<ArticleRelatedService>, ServiceInfo> = {
   },
 };
 
-type Props = { relatedServiceId: ArticleRelatedService };
+type Props = {
+  relatedServiceId: ArticleRelatedService;
+  articleSlug?: string;
+};
 
-export function ServiceCTA({ relatedServiceId }: Props) {
+export function ServiceCTA({ relatedServiceId, articleSlug }: Props) {
   if (!relatedServiceId) return null;
   const svc = SERVICE_MAP[relatedServiceId];
+  const { visitorId, sessionId } = useVisitorSession();
+  const trackCtaClick = useTrackArticleCtaClick();
+
+  function handleClick() {
+    if (!articleSlug || !visitorId || !sessionId) return;
+    trackCtaClick.mutate({
+      articleSlug,
+      visitorId,
+      sessionId,
+      ctaClicks: 1,
+      relatedServiceId,
+    });
+  }
 
   return (
     <div className="my-10 rounded-2xl border border-accent-primary/25 bg-accent-primary/5 p-7">
@@ -48,6 +66,7 @@ export function ServiceCTA({ relatedServiceId }: Props) {
       <p className="font-mono text-sm text-text-primary mb-5">{svc.price}</p>
       <RouterLink
         to={`/servicios${svc.anchor}`}
+        onClick={handleClick}
         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-primary
                    text-white text-sm font-medium hover:bg-accent-primary/90
                    focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:outline-none
