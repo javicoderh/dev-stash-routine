@@ -140,6 +140,17 @@ export default function BlogPost() {
             </div>
           </header>
 
+          {article.ogImage && (
+            <figure className="mb-10 overflow-hidden rounded-2xl border border-border bg-bg-alt">
+              <img
+                src={article.ogImage}
+                alt={article.title}
+                className="block h-auto w-full object-cover"
+                loading="eager"
+              />
+            </figure>
+          )}
+
           <article className="font-serif text-[17px] leading-relaxed text-text-primary">
             <Markdown>{article.content}</Markdown>
           </article>
