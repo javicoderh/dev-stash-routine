@@ -17,6 +17,36 @@ function formatDate(ts: { seconds: number } | null | undefined): string {
   });
 }
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function stripDuplicatedHeroImage(content: string, ogImage: string | null | undefined): string {
+  if (!content || !ogImage) return content;
+
+  const normalizedImage = ogImage.trim();
+  if (!normalizedImage) return content;
+
+  const markdownImage = new RegExp(
+    `^\\s*!\\[[^\\]]*\\]\\(${escapeRegExp(normalizedImage)}(?:\\s+["'][^"']*["'])?\\)\\s*`,
+  );
+
+  if (markdownImage.test(content)) {
+    return content.replace(markdownImage, '');
+  }
+
+  const htmlImage = new RegExp(
+    `^\\s*<img\\b[^>]*src=["']${escapeRegExp(normalizedImage)}["'][^>]*>\\s*`,
+    'i',
+  );
+
+  if (htmlImage.test(content)) {
+    return content.replace(htmlImage, '');
+  }
+
+  return content;
+}
+
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { data: article, isLoading } = useArticle(slug);
@@ -29,6 +59,10 @@ export default function BlogPost() {
     isSavingRating,
     justSaved,
   } = useArticleEngagement(slug);
+
+  const content = article
+    ? stripDuplicatedHeroImage(article.content, article.ogImage)
+    : '';
 
   useEffect(() => {
     if (!slug || !visitorId || !sessionId) return;
@@ -152,7 +186,7 @@ export default function BlogPost() {
           )}
 
           <article className="font-serif text-[17px] leading-relaxed text-text-primary">
-            <Markdown>{article.content}</Markdown>
+            <Markdown>{content}</Markdown>
           </article>
 
           <ArticleRating
